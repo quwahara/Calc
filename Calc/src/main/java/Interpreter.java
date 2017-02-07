@@ -3,57 +3,66 @@ import java.util.List;
 import java.util.Map;
 
 public class Interpreter {
-    
+
     public Map<String, Integer> variables;
     List<Token> body;
-    
+
     public Interpreter init(List<Token> body) {
         variables = new HashMap<>();
         this.body = body;
         return this;
     }
-    
+
     public Map<String, Integer> run() throws Exception {
         body(body);
         return variables;
     }
-    
+
     public void body(List<Token> body) throws Exception {
-        for(Token exprs:body) {
+        for (Token exprs : body) {
             expression(exprs);
         }
     }
-    
+
     public Object expression(Token expr) throws Exception {
-        if(expr.kind.equals("digit")) {
+        if (expr.kind.equals("digit")) {
             return digit(expr);
-        }
-        else if(expr.kind.equals("variable")) {
+        } else if (expr.kind.equals("variable")) {
             return variable(expr);
-        }
-        else if(expr.kind.equals("sign") && expr.value.equals("=")) {
+        } else if (expr.kind.equals("paren")) {
+            return invoke(expr);
+        } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
-        }
-        else if(expr.kind.equals("sign")) {
+        } else if (expr.kind.equals("sign")) {
             return calc(expr);
-        }
-        else {
+        } else {
             throw new Exception("Expression error");
         }
     }
-    
+
     public Integer digit(Token token) {
         return Integer.decode(token.value);
     }
 
     public Object variable(Token token) {
         String name = token.value;
-        if(!variables.containsKey(name)) {
+        if (!variables.containsKey(name)) {
             variables.put(name, 0);
         }
         return name;
     }
-    
+
+    private Object invoke(Token expr) throws Exception {
+        String name = leftValue(expression(expr.left));
+        Integer value = rightValue(expression(expr.right));
+        if (name.equals("println")) {
+            System.out.println(value);
+            return null;
+        } else {
+            throw new Exception("Unknown function");
+        }
+    }
+
     public String assign(Token expr) throws Exception {
         String name = leftValue(expression(expr.left));
         Integer value = rightValue(expression(expr.right));
@@ -62,54 +71,45 @@ public class Interpreter {
     }
 
     public String leftValue(Object value) throws Exception {
-        if(value instanceof String) {
-            return (String)value;
-        }
-        else {
+        if (value instanceof String) {
+            return (String) value;
+        } else {
             throw new Exception("left value error");
         }
     }
-    
+
     public Integer rightValue(Object value) throws Exception {
-        if(value instanceof Integer) {
-            return (Integer)value;
-        }
-        else if(value instanceof String) {
-            return variables.get((String)value);
-        }
-        else {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            return variables.get((String) value);
+        } else {
             throw new Exception("right value error");
         }
     }
-    
+
     public Object calc(Token expr) throws Exception {
         Integer left = rightValue(expression(expr.left));
         Integer right = rightValue(expression(expr.right));
-        if(expr.value.equals("+")) {
+        if (expr.value.equals("+")) {
             return left + right;
-        }
-        else if(expr.value.equals("-")) {
+        } else if (expr.value.equals("-")) {
             return left - right;
-        }
-        else if(expr.value.equals("*")) {
+        } else if (expr.value.equals("*")) {
             return left * right;
-        }
-        else if(expr.value.equals("/")) {
+        } else if (expr.value.equals("/")) {
             return left / right;
-        }
-        else {
+        } else {
             throw new Exception("Unknown sign for Calc");
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "a = 3 + 4 * 5";
+        text += "println(a)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
-        Map<String, Integer> variables = new Interpreter().init(blk).run();
-        for (Map.Entry<String, Integer> variable : variables.entrySet()) {
-            System.out.println(variable.getKey() + " " + variable.getValue());
-        }
-        // --> a 23
+        new Interpreter().init(blk).run();
+        // --> 23
     }
 }

@@ -40,6 +40,10 @@ public class Lexer {
         return c == '=' || c == '+' || c == '-' || c == '*' || c == '/';
     }
 
+    private boolean isParenStart(char c) {
+        return c == '(' || c == ')';
+    }
+
     private boolean isDigitStart(char c) throws Exception {
         return Character.isDigit(c);
     }
@@ -51,6 +55,13 @@ public class Lexer {
     private Token sign() throws Exception {
         Token t = new Token();
         t.kind = "sign";
+        t.value = Character.toString(next());
+        return t;
+    }
+
+    private Token paren() throws Exception {
+        Token t = new Token();
+        t.kind = "paren";
         t.value = Character.toString(next());
         return t;
     }
@@ -89,6 +100,8 @@ public class Lexer {
             return digit();
         } else if (isVariableStart(c())) {
             return variable();
+        } else if (isParenStart(c())) {
+            return paren();
         } else {
             throw new Exception("Not a character for tokens");
         }
