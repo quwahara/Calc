@@ -20,7 +20,7 @@ public class Parser {
         degrees.put("+", 60);
         degrees.put("-", 60);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "variable" });
+        factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
     }
