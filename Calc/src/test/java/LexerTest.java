@@ -38,16 +38,6 @@ public class LexerTest {
     }
 
     @Test
-    public void testTokenize_paren() throws Exception {
-        act = lxr.init("()").tokenize();
-        assertEquals(2, act.size());
-        assertEquals("paren", act.get(0).kind);
-        assertEquals("(", act.get(0).value);
-        assertEquals("paren", act.get(1).kind);
-        assertEquals(")", act.get(1).value);
-    }
-
-    @Test
     public void testTokenize_digit() throws Exception {
         act = lxr.init("0").tokenize();
         assertEquals(1, act.size());

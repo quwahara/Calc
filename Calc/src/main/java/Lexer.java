@@ -40,28 +40,17 @@ public class Lexer {
         return c == '=' || c == '+' || c == '-' || c == '*' || c == '/';
     }
 
-    private boolean isParenStart(char c) {
-        return c == '(' || c == ')';
-    }
-
     private boolean isDigitStart(char c) throws Exception {
         return Character.isDigit(c);
     }
 
-    private boolean isIdentStart(char c) throws Exception {
+    private boolean isVariableStart(char c) throws Exception {
         return Character.isAlphabetic(c);
     }
 
     private Token sign() throws Exception {
         Token t = new Token();
         t.kind = "sign";
-        t.value = Character.toString(next());
-        return t;
-    }
-
-    private Token paren() throws Exception {
-        Token t = new Token();
-        t.kind = "paren";
         t.value = Character.toString(next());
         return t;
     }
@@ -78,14 +67,14 @@ public class Lexer {
         return t;
     }
 
-    private Token ident() throws Exception {
+    private Token variable() throws Exception {
         StringBuilder b = new StringBuilder();
         b.append(next());
         while (!isEOT() && (Character.isAlphabetic(c()) || Character.isDigit(c()))) {
             b.append(next());
         }
         Token t = new Token();
-        t.kind = "ident";
+        t.kind = "variable";
         t.value = b.toString();
         return t;
     }
@@ -98,10 +87,8 @@ public class Lexer {
             return sign();
         } else if (isDigitStart(c())) {
             return digit();
-        } else if (isIdentStart(c())) {
-            return ident();
-        } else if (isParenStart(c())) {
-            return paren();
+        } else if (isVariableStart(c())) {
+            return variable();
         } else {
             throw new Exception("Not a character for tokens");
         }
@@ -123,7 +110,7 @@ public class Lexer {
         for (Token token : tokens) {
             System.out.println(token.toString());
         }
-        // --> ident "ans1"
+        // --> variable "ans1"
         // --> sign "="
         // --> digit "10"
         // --> sign "+"
