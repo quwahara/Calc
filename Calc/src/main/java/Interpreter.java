@@ -31,9 +31,9 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
-        } else if (expr.kind.equals("ident")) {
+        } else if (expr.kind.equals("ident")) { // <-- Update
             return ident(expr);
-        } else if (expr.kind.equals("paren")) {
+        } else if (expr.kind.equals("paren")) { // <-- Add
             return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);

@@ -14,13 +14,13 @@ public class Parser {
 
     public Parser() {
         degrees = new HashMap<>();
-        degrees.put("(", 80);
+        degrees.put("(", 80);   // <-- Add
         degrees.put("*", 70);
         degrees.put("/", 70);
         degrees.put("+", 60);
         degrees.put("-", 60);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "ident" });
+        factorKinds = Arrays.asList(new String[] { "digit", "ident" }); // <-- Update
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
     }
@@ -83,7 +83,7 @@ public class Parser {
             }
             operator.right = expression(leftDegree);
             return operator;
-        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {
+        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {    // <-- Add
             operator.left = left;
             operator.right = expression(0);
             consume(")");
