@@ -29,7 +29,7 @@ public class Interpreter {
             return digit(expr);
         }
         else if(expr.kind.equals("variable")) {
-            return variable(expr);
+            return var(expr);
         }
         else if(expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
@@ -46,7 +46,7 @@ public class Interpreter {
         return Integer.decode(token.value);
     }
 
-    public Object variable(Token token) {
+    public Object var(Token token) {
         String name = token.value;
         if(!variables.containsKey(name)) {
             variables.put(name, 0);
@@ -55,13 +55,13 @@ public class Interpreter {
     }
 
     public String assign(Token expr) throws Exception {
-        String name = leftValue(expression(expr.left));
-        Integer value = rightValue(expression(expr.right));
+        String name = variable(expression(expr.left));
+        Integer value = value(expression(expr.right));
         variables.put(name, value);
         return name;
     }
 
-    public String leftValue(Object value) throws Exception {
+    public String variable(Object value) throws Exception {
         if(value instanceof String) {
             return (String)value;
         }
@@ -70,7 +70,7 @@ public class Interpreter {
         }
     }
 
-    public Integer rightValue(Object value) throws Exception {
+    public Integer value(Object value) throws Exception {
         if(value instanceof Integer) {
             return (Integer)value;
         }
@@ -83,8 +83,8 @@ public class Interpreter {
     }
 
     public Object calc(Token expr) throws Exception {
-        Integer left = rightValue(expression(expr.left));
-        Integer right = rightValue(expression(expr.right));
+        Integer left = value(expression(expr.left));
+        Integer right = value(expression(expr.right));
         if(expr.value.equals("+")) {
             return left + right;
         }
