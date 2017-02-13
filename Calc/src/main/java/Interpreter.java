@@ -19,25 +19,21 @@ public class Interpreter {
     }
 
     public void body(List<Token> body) throws Exception {
-        for(Token exprs:body) {
+        for (Token exprs : body) {
             expression(exprs);
         }
     }
 
     public Object expression(Token expr) throws Exception {
-        if(expr.kind.equals("digit")) {
+        if (expr.kind.equals("digit")) {
             return digit(expr);
-        }
-        else if(expr.kind.equals("variable")) {
+        } else if (expr.kind.equals("variable")) {
             return var(expr);
-        }
-        else if(expr.kind.equals("sign") && expr.value.equals("=")) {
+        } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
-        }
-        else if(expr.kind.equals("sign")) {
+        } else if (expr.kind.equals("sign")) {
             return calc(expr);
-        }
-        else {
+        } else {
             throw new Exception("Expression error");
         }
     }
@@ -48,7 +44,7 @@ public class Interpreter {
 
     public Object var(Token token) {
         String name = token.value;
-        if(!variables.containsKey(name)) {
+        if (!variables.containsKey(name)) {
             variables.put(name, 0);
         }
         return name;
@@ -62,22 +58,19 @@ public class Interpreter {
     }
 
     public String variable(Object value) throws Exception {
-        if(value instanceof String) {
-            return (String)value;
-        }
-        else {
+        if (value instanceof String) {
+            return (String) value;
+        } else {
             throw new Exception("left value error");
         }
     }
 
     public Integer value(Object value) throws Exception {
-        if(value instanceof Integer) {
-            return (Integer)value;
-        }
-        else if(value instanceof String) {
-            return variables.get((String)value);
-        }
-        else {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof String) {
+            return variables.get((String) value);
+        } else {
             throw new Exception("right value error");
         }
     }
@@ -85,19 +78,15 @@ public class Interpreter {
     public Object calc(Token expr) throws Exception {
         Integer left = value(expression(expr.left));
         Integer right = value(expression(expr.right));
-        if(expr.value.equals("+")) {
+        if (expr.value.equals("+")) {
             return left + right;
-        }
-        else if(expr.value.equals("-")) {
+        } else if (expr.value.equals("-")) {
             return left - right;
-        }
-        else if(expr.value.equals("*")) {
+        } else if (expr.value.equals("*")) {
             return left * right;
-        }
-        else if(expr.value.equals("/")) {
+        } else if (expr.value.equals("/")) {
             return left / right;
-        }
-        else {
+        } else {
             throw new Exception("Unknown sign for Calc");
         }
     }
