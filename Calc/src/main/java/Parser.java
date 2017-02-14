@@ -14,13 +14,13 @@ public class Parser {
 
     public Parser() {
         degrees = new HashMap<>();
-        degrees.put("(", 80);   // <-- Add
+        degrees.put("(", 80);
         degrees.put("*", 70);
         degrees.put("/", 70);
         degrees.put("+", 60);
         degrees.put("-", 60);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "ident" }); // <-- Update
+        factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
     }
@@ -61,6 +61,10 @@ public class Parser {
     private Token lead(Token token) throws Exception {
         if (factorKinds.contains(token.kind)) {
             return token;
+        } else if(token.kind.equals("paren") && token.value.equals("(")) {  // <-- Add
+            Token expr = expression(0);
+            consume(")");
+            return expr;
         } else {
             throw new Exception("The token cannot place there.");
         }
@@ -83,7 +87,7 @@ public class Parser {
             }
             operator.right = expression(leftDegree);
             return operator;
-        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {    // <-- Add
+        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {
             operator.left = left;
             operator.right = expression(0);
             consume(")");
@@ -113,7 +117,7 @@ public class Parser {
     }
 
     public static void main(String[] args) throws Exception {
-        String text = "a = 3 + 4 * 5";
+        String text = "a = (3 + 4) * 5";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         for (Token ast : blk) {
