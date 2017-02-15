@@ -31,12 +31,14 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
-        } else if (expr.kind.equals("ident")) { // <-- Update
+        } else if (expr.kind.equals("ident")) {
             return ident(expr);
-        } else if (expr.kind.equals("paren")) { // <-- Add
+        } else if (expr.kind.equals("paren")) {
             return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
+        } else if (expr.kind.equals("unary")) { // <-- Add
+            return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
             return calc(expr);
         } else {
@@ -88,6 +90,17 @@ public class Interpreter {
             return v.value;
         }
         throw new Exception("right value error");
+    }
+
+    public Object unaryCalc(Token expr) throws Exception {
+        Integer left = value(expression(expr.left));
+        if (expr.value.equals("+")) {
+            return left;
+        } else if (expr.value.equals("-")) {
+            return -left;
+        } else {
+            throw new Exception("Unknown sign for unary calc");
+        }
     }
 
     public Object calc(Token expr) throws Exception {
