@@ -14,6 +14,8 @@ public class Token {
     public String paren() {
         if (left == null && right == null) {
             return value;
+        } else if (left != null && right == null) {
+            return value + left.paren();
         } else {
             StringBuilder b = new StringBuilder();
             b.append("(");

@@ -11,6 +11,7 @@ public class Parser {
     private List<String> factorKinds;
     private List<String> binaryKinds;
     private List<String> rightAssocs;
+    private List<String> unaryOperators;
 
     public Parser() {
         degrees = new HashMap<>();
@@ -23,11 +24,12 @@ public class Parser {
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
+        unaryOperators = Arrays.asList(new String[] { "+", "-" }); // <-- Add
     }
 
     private List<Token> tokens;
     private int i;
-    
+
     public Parser init(List<Token> tokens) {
         i = 0;
         this.tokens = new ArrayList<Token>(tokens);
@@ -61,7 +63,11 @@ public class Parser {
     private Token lead(Token token) throws Exception {
         if (factorKinds.contains(token.kind)) {
             return token;
-        } else if(token.kind.equals("paren") && token.value.equals("(")) {  // <-- Add
+        } else if (unaryOperators.contains(token.value)) { // <-- Add
+            token.kind = "unary";
+            token.left = expression(75);
+            return token;
+        } else if (token.kind.equals("paren") && token.value.equals("(")) {
             Token expr = expression(0);
             consume(")");
             return expr;
@@ -87,7 +93,7 @@ public class Parser {
             }
             operator.right = expression(leftDegree);
             return operator;
-        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {
+        } else if (operator.kind.equals("paren") && operator.value.equals("(")) {
             operator.left = left;
             operator.right = expression(0);
             consume(")");
