@@ -16,10 +16,10 @@ public class Parser {
     public Parser() {
         degrees = new HashMap<>();
         degrees.put("(", 80);
-        degrees.put("*", 70);
-        degrees.put("/", 70);
-        degrees.put("+", 60);
-        degrees.put("-", 60);
+        degrees.put("*", 60);
+        degrees.put("/", 60);
+        degrees.put("+", 50);
+        degrees.put("-", 50);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
@@ -65,7 +65,7 @@ public class Parser {
             return token;
         } else if (unaryOperators.contains(token.value)) { // <-- Add
             token.kind = "unary";
-            token.left = expression(75);
+            token.left = expression(70);
             return token;
         } else if (token.kind.equals("paren") && token.value.equals("(")) {
             Token expr = expression(0);
