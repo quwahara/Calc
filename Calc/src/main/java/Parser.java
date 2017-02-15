@@ -15,10 +15,10 @@ public class Parser {
     public Parser() {
         degrees = new HashMap<>();
         degrees.put("(", 80);
-        degrees.put("*", 70);
-        degrees.put("/", 70);
-        degrees.put("+", 60);
-        degrees.put("-", 60);
+        degrees.put("*", 60);
+        degrees.put("/", 60);
+        degrees.put("+", 50);
+        degrees.put("-", 50);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
