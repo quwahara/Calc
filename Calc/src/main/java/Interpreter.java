@@ -37,7 +37,7 @@ public class Interpreter {
             return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
-        } else if (expr.kind.equals("unary")) { // <-- Add
+        } else if (expr.kind.equals("unary")) {
             return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
             return calc(expr);
@@ -162,7 +162,7 @@ public class Interpreter {
     }
 
     public static void main(String[] args) throws Exception {
-        String text = "a = -1";    // <-- Update
+        String text = "a = -1";
         text += "println(a)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();

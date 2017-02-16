@@ -11,7 +11,7 @@ public class Parser {
     private List<String> factorKinds;
     private List<String> binaryKinds;
     private List<String> rightAssocs;
-    private List<String> unaryOperators;    // <-- Add
+    private List<String> unaryOperators;
 
     public Parser() {
         degrees = new HashMap<>();
@@ -24,7 +24,7 @@ public class Parser {
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
-        unaryOperators = Arrays.asList(new String[] { "+", "-" }); // <-- Add
+        unaryOperators = Arrays.asList(new String[] { "+", "-" });
     }
 
     private List<Token> tokens;
@@ -63,7 +63,7 @@ public class Parser {
     private Token lead(Token token) throws Exception {
         if (factorKinds.contains(token.kind)) {
             return token;
-        } else if (unaryOperators.contains(token.value)) { // <-- Add
+        } else if (unaryOperators.contains(token.value)) {
             token.kind = "unary";
             token.left = expression(70);
             return token;
