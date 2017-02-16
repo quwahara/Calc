@@ -11,7 +11,7 @@ public class Parser {
     private List<String> factorKinds;
     private List<String> binaryKinds;
     private List<String> rightAssocs;
-    private List<String> unaryOperators;
+    private List<String> unaryOperators;    // <-- Add
 
     public Parser() {
         degrees = new HashMap<>();
