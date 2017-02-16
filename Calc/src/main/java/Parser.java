@@ -30,10 +30,10 @@ public class Parser {
     public Parser init(List<Token> tokens) {
         i = 0;
         this.tokens = new ArrayList<Token>(tokens);
-        Token eot = new Token();
-        eot.kind = "eot";
-        eot.value = "(eot)";
-        this.tokens.add(eot);
+        Token eob = new Token();
+        eob.kind = "eob";
+        eob.value = "(eob)";
+        this.tokens.add(eob);
         return this;
     }
 
@@ -93,7 +93,7 @@ public class Parser {
 
     public List<Token> block() throws Exception {
         List<Token> blk = new ArrayList<Token>();
-        while (!token().value.equals("(eot)")) {
+        while (!token().kind.equals("eob")) {
             blk.add(expression(0));
         }
         return blk;
