@@ -146,7 +146,7 @@ public class Interpreter {
     public static abstract class Func {
         public String name;
 
-        abstract public Object invoke(Object arg);
+        abstract public Object invoke(Object arg) throws Exception;
     }
 
     public static class Println extends Func {
@@ -155,7 +155,7 @@ public class Interpreter {
         }
 
         @Override
-        public Object invoke(Object arg) {
+        public Object invoke(Object arg) throws Exception {
             System.out.println(arg);
             return null;
         }
