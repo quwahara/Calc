@@ -12,6 +12,7 @@ public class Parser {
     private List<String> binaryKinds;
     private List<String> rightAssocs;
     private List<String> unaryOperators;
+    private List<String> reserved;
 
     public Parser() {
         degrees = new HashMap<>();
@@ -25,6 +26,7 @@ public class Parser {
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-" });
+        reserved = Arrays.asList(new String[] { "function" });
     }
 
     private List<Token> tokens;
@@ -33,10 +35,10 @@ public class Parser {
     public Parser init(List<Token> tokens) {
         i = 0;
         this.tokens = new ArrayList<Token>(tokens);
-        Token eot = new Token();
-        eot.kind = "eot";
-        eot.value = "(eot)";
-        this.tokens.add(eot);
+        Token eob = new Token();
+        eob.kind = "eob";
+        eob.value = "(eob)";
+        this.tokens.add(eob);
         return this;
     }
 
@@ -61,7 +63,9 @@ public class Parser {
     }
 
     private Token lead(Token token) throws Exception {
-        if (factorKinds.contains(token.kind)) {
+        if (token.kind.equals("ident") && token.value.equals("function")) {
+            return func(token);
+        } else if (factorKinds.contains(token.kind)) {
             return token;
         } else if (unaryOperators.contains(token.value)) {
             token.kind = "unary";
@@ -74,6 +78,29 @@ public class Parser {
         } else {
             throw new Exception("The token cannot place there.");
         }
+    }
+
+    private Token func(Token token) throws Exception {
+        token.kind = "func";
+        token.ident = ident();
+        consume("(");
+        token.param = ident();
+        consume(")");
+        consume("{");
+        token.block = block();
+        consume("}");
+        return token;
+    }
+
+    private Token ident() throws Exception {
+        Token id = next();
+        if (!id.kind.equals("ident")) {
+            throw new Exception("Not an identical token.");
+        }
+        if (reserved.contains(id.value)) {
+            throw new Exception("The token was reserved.");
+        }
+        return id;
     }
 
     private int degree(Token t) {
@@ -116,7 +143,7 @@ public class Parser {
 
     public List<Token> block() throws Exception {
         List<Token> blk = new ArrayList<Token>();
-        while (!token().value.equals("(eot)")) {
+        while (!token().kind.equals("eob")) {
             blk.add(expression(0));
         }
         return blk;

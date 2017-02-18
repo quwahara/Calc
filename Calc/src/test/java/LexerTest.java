@@ -53,7 +53,7 @@ public class LexerTest {
         assertEquals(2, act.size());
         assertEquals("curly", act.get(0).kind);
         assertEquals("{", act.get(0).value);
-        assertEquals("curly", act.get(1).kind);
+        assertEquals("eob", act.get(1).kind);
         assertEquals("}", act.get(1).value);
     }
 

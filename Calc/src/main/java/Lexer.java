@@ -72,7 +72,11 @@ public class Lexer {
 
     private Token curly() throws Exception {
         Token t = new Token();
-        t.kind = "curly";
+        if (c() == '{') {
+            t.kind = "curly";
+        } else {
+            t.kind = "eob";
+        }
         t.value = Character.toString(next());
         return t;
     }

@@ -190,4 +190,87 @@ public class ParsrTest {
         assertEquals(1, block.size());
         assertEquals("-(1 + 2)", block.get(0).paren());
     }
+
+    @Test
+    public void func1() {
+        text = "function";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func2() {
+        text = "function f";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func3() {
+        text = "function f(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func4() {
+        text = "function f(a";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func5() {
+        text = "function f(a)";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func6() {
+        text = "function f(a) {";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void func7() throws Exception {
+        text = "function f(a) {}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        System.out.println(block.get(0).indent(""));
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[param]\n"
+                + "  ident \"a\"\n"
+                + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+
 }
