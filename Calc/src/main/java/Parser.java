@@ -84,7 +84,14 @@ public class Parser {
         token.kind = "func";
         token.ident = ident();
         consume("(");
-        token.param = ident();
+        token.params = new ArrayList<Token>();
+        if (!token().value.equals(")")) {
+            token.params.add(ident());
+            while (!token().value.equals(")")) {
+                consume(",");
+                token.params.add(ident());
+            }
+        }
         consume(")");
         consume("{");
         token.block = block();
@@ -122,7 +129,14 @@ public class Parser {
             return operator;
         } else if (operator.kind.equals("paren") && operator.value.equals("(")) {
             operator.left = left;
-            operator.right = expression(0);
+            operator.params = new ArrayList<Token>();
+            if (!token().value.equals(")")) {
+                operator.params.add(expression(0));
+                while (!token().value.equals(")")) {
+                    consume(",");
+                    operator.params.add(expression(0));
+                }
+            }
             consume(")");
             return operator;
         } else {

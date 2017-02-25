@@ -164,7 +164,7 @@ public class ParsrTest {
         text = "println(1)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("(println ( 1)", block.get(0).paren());
+        assertEquals("(println (1))", block.get(0).paren());
     }
 
     @Test
@@ -262,14 +262,186 @@ public class ParsrTest {
         text = "function f(a) {}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        System.out.println(block.get(0).indent(""));
         assertEquals(""
                 + "func \"function\"\n"
                 + "[ident]\n"
                 + "  ident \"f\"\n"
-                + "[param]\n"
+                + "[params]\n"
                 + "  ident \"a\"\n"
                 + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void func8() throws Exception {
+        text = "function f() {}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void func9() throws Exception {
+        text = "function f(a, b) {}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "  ident \"a\"\n"
+                + "  ident \"b\"\n"
+                + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void func10() throws Exception {
+        text = "function f(a, b, c) {}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "  ident \"a\"\n"
+                + "  ident \"b\"\n"
+                + "  ident \"c\"\n"
+                + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+    
+    @Test
+    public void invoke1() {
+        text = "f(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke2() {
+        text = "f(a";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke3() {
+        text = "f(a,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke4() {
+        text = "f(a,b";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke5() {
+        text = "f(a,b,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke6() {
+        text = "f(a,b,c";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void invoke7() throws Exception {
+        text = "f()";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "paren \"(\"\n"
+                + "[left]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "", block.get(0).indent(""));
+    }
+    
+    @Test
+    public void invoke8() throws Exception {
+        text = "f(a)";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "paren \"(\"\n"
+                + "[left]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "  ident \"a\"\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void invoke9() throws Exception {
+        text = "f(a,b)";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        System.out.println(block.get(0).indent(""));
+        assertEquals(""
+                + "paren \"(\"\n"
+                + "[left]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "  ident \"a\"\n"
+                + "  ident \"b\"\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void invoke10() throws Exception {
+        text = "f(a,b,c)";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        System.out.println(block.get(0).indent(""));
+        assertEquals(""
+                + "paren \"(\"\n"
+                + "[left]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "  ident \"a\"\n"
+                + "  ident \"b\"\n"
+                + "  ident \"c\"\n"
                 + "", block.get(0).indent(""));
     }
 
