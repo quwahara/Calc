@@ -155,7 +155,7 @@ public class Interpreter {
         Func f = func(expression(expr.left));
         List<Object> values = new ArrayList<Object>();
         for (Token arg : expr.params) {
-            values.add(expression(arg));
+            values.add(value(expression(arg)));
         }
         return f.invoke(values);
     }
