@@ -23,10 +23,22 @@ public class Interpreter {
         return variables;
     }
 
-    public void body(List<Token> body) throws Exception {
+    public Object body(List<Token> body) throws Exception {
         for (Token exprs : body) {
-            expression(exprs);
+            if (exprs.kind.equals("ret")) {
+                return ret(exprs);
+            } else {
+                expression(exprs);
+            }
         }
+        return null;
+    }
+
+    public Object ret(Token token) throws Exception {
+        if (token.left == null) {
+            return null;
+        }
+        return expression(token.left);
     }
 
     public Object expression(Token expr) throws Exception {
@@ -214,18 +226,16 @@ public class Interpreter {
                 }
                 params.get(i).value = value;
             }
-            context.body(block);
-            return null;
+            return context.body(block);
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "v = 0";
         text += "function add3(a1, a2, a3) {";
-        text += "  v = a1 + a2 + a3";
+        text += "  return a1 + a2 + a3";
         text += "}";
-        text += "add3(1,2,3)";
+        text += "v = add3(1,2,3)";
         text += "println(v)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
