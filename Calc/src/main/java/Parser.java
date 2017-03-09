@@ -67,7 +67,7 @@ public class Parser {
             return func(token);
         } else if (token.kind.equals("ident") && token.value.equals("return")) {
             token.kind = "ret";
-            if (!token.kind.equals("eob")) {
+            if (!token().kind.equals("eob")) {
                 token.left = expression(0);
             }
             return token;

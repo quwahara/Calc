@@ -19,16 +19,25 @@ public class Interpreter {
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body);
+        body(body, null);
         return variables;
     }
 
-    public Object body(List<Token> body) throws Exception {
+    public Object body(List<Token> body, boolean[] ret) throws Exception {
+        Object val;
         for (Token exprs : body) {
+            val = null;
             if (exprs.kind.equals("ret")) {
-                return ret(exprs);
+                if (ret == null) {
+                    throw new Exception("Can not return");
+                }
+                val = ret(exprs);
+                ret[0] = true;
             } else {
                 expression(exprs);
+            }
+            if (ret != null && ret[0]) {
+                return val;
             }
         }
         return null;
@@ -226,7 +235,8 @@ public class Interpreter {
                 }
                 params.get(i).value = value;
             }
-            return context.body(block);
+            boolean[] ret = new boolean[1];
+            return context.body(block, ret);
         }
     }
 
