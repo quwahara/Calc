@@ -417,7 +417,6 @@ public class ParsrTest {
         text = "f(a,b)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        System.out.println(block.get(0).indent(""));
         assertEquals(""
                 + "paren \"(\"\n"
                 + "[left]\n"
@@ -433,7 +432,6 @@ public class ParsrTest {
         text = "f(a,b,c)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        System.out.println(block.get(0).indent(""));
         assertEquals(""
                 + "paren \"(\"\n"
                 + "[left]\n"
