@@ -24,20 +24,19 @@ public class Interpreter {
     }
 
     public Object body(List<Token> body, boolean[] ret) throws Exception {
-        Object val;
         for (Token exprs : body) {
-            val = null;
             if (exprs.kind.equals("ret")) {
                 if (ret == null) {
                     throw new Exception("Can not return");
                 }
-                val = ret(exprs);
                 ret[0] = true;
+                if (exprs.left == null) {
+                    return null;
+                } else {
+                    return expression(exprs.left);
+                }
             } else {
                 expression(exprs);
-            }
-            if (ret != null && ret[0]) {
-                return val;
             }
         }
         return null;
