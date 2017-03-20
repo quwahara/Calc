@@ -19,7 +19,7 @@ public class Interpreter {
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null);
+        body(body, null);                                   // <-- Update
         return variables;
     }
 
@@ -234,8 +234,8 @@ public class Interpreter {
                 }
                 params.get(i).value = value;
             }
-            boolean[] ret = new boolean[1];
-            return context.body(block, ret);
+            boolean[] ret = new boolean[1];     // <-- Update
+            return context.body(block, ret);    // <-- Update
         }
     }
 
