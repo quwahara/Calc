@@ -540,7 +540,7 @@ public class ParsrTest {
                 + "[left]\n"
                 + "  digit \"1\"\n"
                 + "[block]\n"
-, block.get(0).indent(""));
+                + "", block.get(0).indent(""));
     }
 
     @Test
@@ -554,7 +554,7 @@ public class ParsrTest {
                 + "  digit \"1\"\n"
                 + "[block]\n"
                 + "  digit \"1\"\n"
-, block.get(0).indent(""));
+                + "", block.get(0).indent(""));
     }
 
     @Test
@@ -580,7 +580,7 @@ public class ParsrTest {
                 + "[block]\n"
                 + "[blockOfElse]\n"
                 + "  digit \"1\"\n"
-, block.get(0).indent(""));
+                + "", block.get(0).indent(""));
     }
 
     @Test
@@ -605,7 +605,90 @@ public class ParsrTest {
                 + "  digit \"1\"\n"
                 + "[block]\n"
                 + "[blockOfElse]\n"
-, block.get(0).indent(""));
+                + "", block.get(0).indent(""));
     }    
+
+
+    @Test
+    public void while1() {
+        text = "while";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void while2() {
+        text = "while(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void while3() {
+        text = "while(1";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void while4() {
+        text = "while(1)";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void while5() {
+        text = "while(1){";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void while6() throws Exception {
+        text = "while(1){}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "while \"while\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+                + "", block.get(0).indent(""));
+    }
+
+    @Test
+    public void while7() throws Exception {
+        text = "while(1) 3";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "while \"while\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+                + "  digit \"3\"\n"
+                + "", block.get(0).indent(""));
+    }
 
 }

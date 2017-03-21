@@ -542,6 +542,103 @@ public class InterpreterTest {
         assertEquals(1, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_43() throws Exception {
+        text += "c = 0";
+        text += "v = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }    
+
+    @Test
+    public void testBody_44() throws Exception {
+        text += "c = 1";
+        text += "v = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }    
+
+    @Test
+    public void testBody_45() throws Exception {
+        text += "c = 2";
+        text += "v = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }    
+
+    @Test
+    public void testBody_46() throws Exception {
+        text += "c = 3";
+        text += "v = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(3, (int) actual.get("v").value);
+    }    
+
+    @Test
+    public void testBody_47() throws Exception {
+        text += "c = 4";
+        text += "v = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "  if (v - 2) {";
+        text += "  } else {";
+        text += "    break";
+        text += "  }";
+        text += "}";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }    
+
+    @Test
+    public void testBody_48() throws Exception {
+        text += "c = 3";
+        text += "v = 0";
+        text += "g = 0";
+        text += "while(c) {";
+        text += "  c = c - 1";
+        text += "  v = v + 1";
+        text += "  cc = 3";
+        text += "  vv = 0";
+        text += "  while (cc) {";
+        text += "    cc = cc - 1";
+        text += "    vv = vv + 1";
+        text += "    g = g + 1";
+        text += "    if (vv - 2) {";
+        text += "    } else {";
+        text += "      if (vv - 2) {";
+        text += "      } else {";
+        text += "        g = g + 10";
+        text += "        break";
+        text += "      }";
+        text += "    }";
+        text += "  }";
+        text += "  if (v - 2) {";
+        text += "  } else {";
+        text += "    g = g + 100";
+        text += "    break";
+        text += "  }";
+        text += "}";
+        actual = run();
+        assertEquals(124, (int) actual.get("g").value);
+    }    
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
