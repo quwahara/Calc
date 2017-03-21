@@ -37,7 +37,8 @@ public class Lexer {
     }
 
     private boolean isSignStart(char c) {
-        return c == '=' || c == '+' || c == '-' || c == '*' || c == '/';
+        return c == '=' || c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '<' || c == '>' || c == '&'
+                || c == '|';
     }
 
     private boolean isParenStart(char c) {
@@ -63,7 +64,30 @@ public class Lexer {
     private Token sign() throws Exception {
         Token t = new Token();
         t.kind = "sign";
-        t.value = Character.toString(next());
+        char c1 = next();
+        char c2 = (char) 0;
+        if (!isEOT()) {
+            if (c1 == '=' || c1 == '!' || c1 == '<' || c1 == '>') {
+                if (c() == '=') {
+                    c2 = next();
+                }
+            } else if (c1 == '&') {
+                if (c() == '&') {
+                    c2 = next();
+                }
+            } else if (c1 == '|') {
+                if (c() == '|') {
+                    c2 = next();
+                }
+            }
+        }
+        String v;
+        if (c2 == (char) 0) {
+            v = Character.toString(c1);
+        } else {
+            v = Character.toString(c1) + Character.toString(c2);
+        }
+        t.value = v;
         return t;
     }
 

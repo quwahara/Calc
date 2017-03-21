@@ -29,11 +29,113 @@ public class LexerTest {
     }
 
     @Test
-    public void testTokenize_sign() throws Exception {
+    public void testTokenize_sign1() throws Exception {
         act = lxr.init("+").tokenize();
         assertEquals(1, act.size());
         assertEquals("sign", act.get(0).kind);
         assertEquals("+", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign2() throws Exception {
+        act = lxr.init("=").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("=", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign3() throws Exception {
+        act = lxr.init("==").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("==", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign4() throws Exception {
+        act = lxr.init("!").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("!", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign5() throws Exception {
+        act = lxr.init("!=").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("!=", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign6() throws Exception {
+        act = lxr.init("<").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("<", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign7() throws Exception {
+        act = lxr.init("<=").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("<=", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign8() throws Exception {
+        act = lxr.init(">-").tokenize();
+        assertEquals(2, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals(">", act.get(0).value);
+        assertEquals("sign", act.get(1).kind);
+        assertEquals("-", act.get(1).value);
+    }
+
+    @Test
+    public void testTokenize_sign9() throws Exception {
+        act = lxr.init(">=").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals(">=", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign10() throws Exception {
+        act = lxr.init("&-").tokenize();
+        assertEquals(2, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("&", act.get(0).value);
+        assertEquals("sign", act.get(1).kind);
+        assertEquals("-", act.get(1).value);
+    }
+
+    @Test
+    public void testTokenize_sign11() throws Exception {
+        act = lxr.init("&&").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("&&", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_sign12() throws Exception {
+        act = lxr.init("|-").tokenize();
+        assertEquals(2, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("|", act.get(0).value);
+        assertEquals("sign", act.get(1).kind);
+        assertEquals("-", act.get(1).value);
+    }
+
+    @Test
+    public void testTokenize_sign13() throws Exception {
+        act = lxr.init("||").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("sign", act.get(0).kind);
+        assertEquals("||", act.get(0).value);
     }
 
     @Test

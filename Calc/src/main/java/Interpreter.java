@@ -25,7 +25,7 @@ public class Interpreter {
 
     public Object body(List<Token> body, boolean[] ret) throws Exception {
         for (Token exprs : body) {
-            if (exprs.kind.equals("if")) {      // <-- Add
+            if (exprs.kind.equals("if")) {
                 Object val = if_(exprs, ret);
                 if (ret != null && ret[0]) {
                     return val;
@@ -56,7 +56,7 @@ public class Interpreter {
 
     public Object if_(Token token, boolean[] ret) throws Exception {
         List<Token> block;
-        if (IsTrue(token.left)) {
+        if (isTrue(token.left)) {
             block = token.block;
         } else {
             block = token.blockOfElse;
@@ -68,8 +68,12 @@ public class Interpreter {
         }
     }
 
-    public boolean IsTrue(Token token) throws Exception {
-        return 0 != value(expression(token));
+    public boolean isTrue(Token token) throws Exception {
+        return isTrue(value(expression(token)));
+    }
+
+    public boolean isTrue(Integer value) throws Exception {
+        return 0 != value;
     }
 
     public Object expression(Token expr) throws Exception {
@@ -173,6 +177,8 @@ public class Interpreter {
             return left;
         } else if (expr.value.equals("-")) {
             return -left;
+        } else if (expr.value.equals("!")) { // <-- Add
+            return toInteger(!isTrue(left));
         } else {
             throw new Exception("Unknown sign for unary calc");
         }
@@ -189,9 +195,29 @@ public class Interpreter {
             return left * right;
         } else if (expr.value.equals("/")) {
             return left / right;
+        } else if (expr.value.equals("==")) { // <-- Add
+            return toInteger(left == right);
+        } else if (expr.value.equals("!=")) {
+            return toInteger(left != right);
+        } else if (expr.value.equals("<")) {
+            return toInteger(left < right);
+        } else if (expr.value.equals("<=")) {
+            return toInteger(left <= right);
+        } else if (expr.value.equals(">")) {
+            return toInteger(left > right);
+        } else if (expr.value.equals(">=")) {
+            return toInteger(left >= right);
+        } else if (expr.value.equals("&&")) {
+            return toInteger(isTrue(left) && isTrue(right));
+        } else if (expr.value.equals("||")) {
+            return toInteger(isTrue(left) || isTrue(right));
         } else {
             throw new Exception("Unknown sign for Calc");
         }
+    }
+
+    public Integer toInteger(boolean b) {
+        return b ? 1 : 0;
     }
 
     private Object invoke(Token expr) throws Exception {
@@ -264,19 +290,12 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "function f(a) {";
-        text += "  if (a) {";
-        text += "    return 3";
-        text += "  } else {";
-        text += "    return 4";
-        text += "  }";
-        text += "}";
-        text += "println(f(1))";
-        text += "println(f(0))";
+        text += "println(3 > 2 && 4 <= 4)";
+        text += "println(5 == 6 || 7 != 8)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 3
-        // --> 4
+        // --> 1
+        // --> 1
     }
 }
