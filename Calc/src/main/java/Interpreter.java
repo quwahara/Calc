@@ -264,14 +264,19 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "function add3(a1, a2, a3) {";
-        text += "  return a1 + a2 + a3";
+        text += "function f(a) {";
+        text += "  if (a) {";
+        text += "    return 3";
+        text += "  } else {";
+        text += "    return 4";
+        text += "  }";
         text += "}";
-        text += "v = add3(1,2,3)";
-        text += "println(v)";
+        text += "println(f(1))";
+        text += "println(f(0))";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 6
+        // --> 3
+        // --> 4
     }
 }
