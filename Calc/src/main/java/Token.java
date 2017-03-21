@@ -9,6 +9,7 @@ public class Token {
     public Token ident;
     public List<Token> params;
     public List<Token> block;
+    public List<Token> blockOfElse;
 
     @Override
     public String toString() {
@@ -37,6 +38,12 @@ public class Token {
         if (block != null) {
             b.append(parentIndent).append("[block]\n");
             for (Token expr : block) {
+                b.append(expr.indent(parentIndent + indent));
+            }
+        }
+        if (blockOfElse != null) {
+            b.append(parentIndent).append("[blockOfElse]\n");
+            for (Token expr : blockOfElse) {
                 b.append(expr.indent(parentIndent + indent));
             }
         }

@@ -26,7 +26,7 @@ public class Parser {
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-" });
-        reserved = Arrays.asList(new String[] { "function", "return" });    // <-- Update
+        reserved = Arrays.asList(new String[] { "function", "return", "if", "else" });  // <-- Update
     }
 
     private List<Token> tokens;
@@ -71,6 +71,8 @@ public class Parser {
                 token.left = expression(0);
             }
             return token;
+        } else if (token.kind.equals("ident") && token.value.equals("if")) {
+            return if_(token);
         } else if (factorKinds.contains(token.kind)) {
             return token;
         } else if (unaryOperators.contains(token.value)) {
@@ -99,9 +101,30 @@ public class Parser {
             }
         }
         consume(")");
-        consume("{");
-        token.block = block();
-        consume("}");
+        token.block = body();
+        return token;
+    }
+
+    private Token if_(Token token) throws Exception {
+        token.kind = "if";
+        consume("(");
+        token.left = expression(0);
+        consume(")");
+        if (token().value.equals("{")) {
+            token.block = body();
+        } else {
+            token.block = new ArrayList<Token>();
+            token.block.add(expression(0));
+        }
+        if (token().value.equals("else")) {
+            consume("else");
+            if (token().value.equals("{")) {
+                token.blockOfElse = body();
+            } else {
+                token.blockOfElse = new ArrayList<Token>();
+                token.blockOfElse.add(expression(0));
+            }
+        }
         return token;
     }
 
@@ -159,6 +182,13 @@ public class Parser {
             rightDegree = degree(token());
         }
         return left;
+    }
+
+    private List<Token> body() throws Exception {
+        consume("{");
+        List<Token> block = block();
+        consume("}");
+        return block;
     }
 
     public List<Token> block() throws Exception {

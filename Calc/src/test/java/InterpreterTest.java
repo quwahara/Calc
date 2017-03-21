@@ -300,6 +300,248 @@ public class InterpreterTest {
         assertEquals(2, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_28() throws Exception {
+        text += "v = 0";
+        text += "if(0) {";
+        text += "  v = 1";
+        text += "}";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_29() throws Exception {
+        text += "v = 0";
+        text += "if(1) {";
+        text += "  v = 1";
+        text += "}";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_30() throws Exception {
+        text += "v = 0";
+        text += "if(0) {";
+        text += "  v = 1";
+        text += "} else {";
+        text += "  v = 2";
+        text += "}";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_31() throws Exception {
+        text += "v = 0";
+        text += "if(1) {";
+        text += "  v = 1";
+        text += "} else {";
+        text += "  v = 2";
+        text += "}";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_32() throws Exception {
+        text += "function f(a) {";
+        text += "  if(a) {";
+        text += "    return 1";
+        text += "  }";
+        text += "  return 2";
+        text += "}";
+        text += "v = f(0)";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_33() throws Exception {
+        text += "function f(a) {";
+        text += "  if(a) {";
+        text += "    return 1";
+        text += "  }";
+        text += "  return 2";
+        text += "}";
+        text += "v = f(1)";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_34() throws Exception {
+        text += "function f(a) {";
+        text += "  if(a) {";
+        text += "    return 1";
+        text += "  } else {";
+        text += "    return 2";
+        text += "  }";
+        text += "}";
+        text += "v = f(0)";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_35() throws Exception {
+        text += "function f(a) {";
+        text += "  if(a) {";
+        text += "    return 1";
+        text += "  } else {";
+        text += "    return 2";
+        text += "  }";
+        text += "}";
+        text += "v = f(1)";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_36() throws Exception {
+        text += "function f(a, b) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    }";
+        text += "    return 2";
+        text += "  }";
+        text += "  return 3";
+        text += "}";
+        text += "v = f(0, 0)";
+        actual = run();
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_37() throws Exception {
+        text += "function f(a, b) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    }";
+        text += "    return 2";
+        text += "  }";
+        text += "  return 3";
+        text += "}";
+        text += "v = f(1, 0)";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_38() throws Exception {
+        text += "function f(a, b) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    }";
+        text += "    return 2";
+        text += "  }";
+        text += "  return 3";
+        text += "}";
+        text += "v = f(1, 1)";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_39() throws Exception {
+        text += "function f(a, b, c) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    } else {";
+        text += "      return 2";
+        text += "    }";
+        text += "    return -1";
+        text += "  } else {";
+        text += "    if(c) {";
+        text += "      return 3";
+        text += "    } else {";
+        text += "      return 4";
+        text += "    }";
+        text += "    return -1";
+        text += "  }";
+        text += "}";
+        text += "v = f(0, 0, 0)";
+        actual = run();
+        assertEquals(4, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_40() throws Exception {
+        text += "function f(a, b, c) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    } else {";
+        text += "      return 2";
+        text += "    }";
+        text += "    return -1";
+        text += "  } else {";
+        text += "    if(c) {";
+        text += "      return 3";
+        text += "    } else {";
+        text += "      return 4";
+        text += "    }";
+        text += "    return -1";
+        text += "  }";
+        text += "}";
+        text += "v = f(0, 0, 1)";
+        actual = run();
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_41() throws Exception {
+        text += "function f(a, b, c) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    } else {";
+        text += "      return 2";
+        text += "    }";
+        text += "    return -1";
+        text += "  } else {";
+        text += "    if(c) {";
+        text += "      return 3";
+        text += "    } else {";
+        text += "      return 4";
+        text += "    }";
+        text += "    return -1";
+        text += "  }";
+        text += "}";
+        text += "v = f(1, 0, 0)";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_42() throws Exception {
+        text += "function f(a, b, c) {";
+        text += "  if(a) {";
+        text += "    if(b) {";
+        text += "      return 1";
+        text += "    } else {";
+        text += "      return 2";
+        text += "    }";
+        text += "    return -1";
+        text += "  } else {";
+        text += "    if(c) {";
+        text += "      return 3";
+        text += "    } else {";
+        text += "      return 4";
+        text += "    }";
+        text += "    return -1";
+        text += "  }";
+        text += "}";
+        text += "v = f(1, 1, 0)";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
