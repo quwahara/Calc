@@ -25,7 +25,7 @@ public class Interpreter {
 
     public Object body(List<Token> body, boolean[] ret) throws Exception {
         for (Token exprs : body) {
-            if (exprs.kind.equals("if")) {
+            if (exprs.kind.equals("if")) {      // <-- Add
                 Object val = if_(exprs, ret);
                 if (ret != null && ret[0]) {
                     return val;

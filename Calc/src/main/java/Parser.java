@@ -65,13 +65,13 @@ public class Parser {
     private Token lead(Token token) throws Exception {
         if (token.kind.equals("ident") && token.value.equals("function")) {
             return func(token);
-        } else if (token.kind.equals("ident") && token.value.equals("return")) {    // <-- Add
+        } else if (token.kind.equals("ident") && token.value.equals("return")) {
             token.kind = "ret";
             if (!token().kind.equals("eob")) {
                 token.left = expression(0);
             }
             return token;
-        } else if (token.kind.equals("ident") && token.value.equals("if")) {
+        } else if (token.kind.equals("ident") && token.value.equals("if")) {    // <-- Add
             return if_(token);
         } else if (factorKinds.contains(token.kind)) {
             return token;
