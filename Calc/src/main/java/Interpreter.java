@@ -290,12 +290,14 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "println(3 > 2 && 4 <= 4)";
-        text += "println(5 == 6 || 7 != 8)";
+        text += "println(10 > 1)";
+        text += "println(5 <= 1)";
+        text += "println(!(1 == 2) && (3 != 4))";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
         // --> 1
+        // --> 0
         // --> 1
     }
 }
