@@ -56,7 +56,7 @@ public class Interpreter {
 
     public Object if_(Token token, boolean[] ret) throws Exception {
         List<Token> block;
-        if (IsTrue(token.left)) {
+        if (isTrue(token.left)) {
             block = token.block;
         } else {
             block = token.blockOfElse;
@@ -68,7 +68,7 @@ public class Interpreter {
         }
     }
 
-    public boolean IsTrue(Token token) throws Exception {
+    public boolean isTrue(Token token) throws Exception {
         return 0 != value(expression(token));
     }
 
