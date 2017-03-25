@@ -21,7 +21,7 @@ public class Parser {
         degrees.put("/", 60);
         degrees.put("+", 50);
         degrees.put("-", 50);
-        degrees.put("==", 40); // <-- Add
+        degrees.put("==", 40);
         degrees.put("!=", 40);
         degrees.put("<", 40);
         degrees.put("<=", 40);
@@ -33,8 +33,8 @@ public class Parser {
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
-        unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });                 // <-- Update
-        reserved = Arrays.asList(new String[] { "function", "return", "if", "else" });
+        unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
+        reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while"});  // <-- Update
     }
 
     private List<Token> tokens;
@@ -79,8 +79,13 @@ public class Parser {
                 token.left = expression(0);
             }
             return token;
-        } else if (token.kind.equals("ident") && token.value.equals("if")) {    // <-- Add
+        } else if (token.kind.equals("ident") && token.value.equals("if")) {
             return if_(token);
+        } else if (token.kind.equals("ident") && token.value.equals("while")) { // <-- Add
+            return while_(token);
+        } else if (token.kind.equals("ident") && token.value.equals("break")) { // <-- Add
+            token.kind = "brk";
+            return token;
         } else if (factorKinds.contains(token.kind)) {
             return token;
         } else if (unaryOperators.contains(token.value)) {
@@ -136,6 +141,20 @@ public class Parser {
         return token;
     }
 
+    private Token while_(Token token) throws Exception {
+        token.kind = "while";
+        consume("(");
+        token.left = expression(0);
+        consume(")");
+        if (token().value.equals("{")) {
+            token.block = body();
+        } else {
+            token.block = new ArrayList<Token>();
+            token.block.add(expression(0));
+        }
+        return token;
+    }
+    
     private Token ident() throws Exception {
         Token id = next();
         if (!id.kind.equals("ident")) {
