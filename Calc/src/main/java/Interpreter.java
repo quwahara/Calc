@@ -19,13 +19,18 @@ public class Interpreter {
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null);                                   // <-- Update
+        body(body, null);
         return variables;
     }
 
     public Object body(List<Token> body, boolean[] ret) throws Exception {
         for (Token exprs : body) {
-            if (exprs.kind.equals("ret")) {
+            if (exprs.kind.equals("if")) {      // <-- Add
+                Object val = if_(exprs, ret);
+                if (ret != null && ret[0]) {
+                    return val;
+                }
+            } else if (exprs.kind.equals("ret")) {
                 if (ret == null) {
                     throw new Exception("Can not return");
                 }
@@ -47,6 +52,24 @@ public class Interpreter {
             return null;
         }
         return expression(token.left);
+    }
+
+    public Object if_(Token token, boolean[] ret) throws Exception {
+        List<Token> block;
+        if (isTrue(token.left)) {
+            block = token.block;
+        } else {
+            block = token.blockOfElse;
+        }
+        if (block != null) {
+            return body(block, ret);
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isTrue(Token token) throws Exception {
+        return 0 != value(expression(token));
     }
 
     public Object expression(Token expr) throws Exception {
@@ -234,21 +257,26 @@ public class Interpreter {
                 }
                 params.get(i).value = value;
             }
-            boolean[] ret = new boolean[1];     // <-- Update
-            return context.body(block, ret);    // <-- Update
+            boolean[] ret = new boolean[1];
+            return context.body(block, ret);
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "function add3(a1, a2, a3) {";
-        text += "  return a1 + a2 + a3";
+        text += "function f(a) {";
+        text += "  if (a) {";
+        text += "    return 3";
+        text += "  } else {";
+        text += "    return 4";
+        text += "  }";
         text += "}";
-        text += "v = add3(1,2,3)";
-        text += "println(v)";
+        text += "println(f(1))";
+        text += "println(f(0))";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 6
+        // --> 3
+        // --> 4
     }
 }

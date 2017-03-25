@@ -474,5 +474,138 @@ public class ParsrTest {
                 + "  ident \"c\"\n"
                 + "", block.get(0).indent(""));
     }
+    
+    @Test
+    public void if1() {
+        text = "if";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if2() {
+        text = "if(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if3() {
+        text = "if(1";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if4() {
+        text = "if(1)";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if5() {
+        text = "if(1){";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if6() throws Exception {
+        text = "if(1){}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "if \"if\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+, block.get(0).indent(""));
+    }
+
+    @Test
+    public void if7() throws Exception {
+        text = "if(1)1";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals( ""
+                + "if \"if\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+                + "  digit \"1\"\n"
+, block.get(0).indent(""));
+    }
+
+    @Test
+    public void if8() {
+        text = "if(1){}else";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if9() throws Exception {
+        text = "if(1){}else 1";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "if \"if\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+                + "[blockOfElse]\n"
+                + "  digit \"1\"\n"
+, block.get(0).indent(""));
+    }
+
+    @Test
+    public void if10() {
+        text = "if(1){}else{";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void if11() throws Exception {
+        text = "if(1){}else{}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "if \"if\"\n"
+                + "[left]\n"
+                + "  digit \"1\"\n"
+                + "[block]\n"
+                + "[blockOfElse]\n"
+, block.get(0).indent(""));
+    }    
 
 }
