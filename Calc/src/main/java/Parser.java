@@ -26,7 +26,7 @@ public class Parser {
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-" });
-        reserved = Arrays.asList(new String[] { "function" });
+        reserved = Arrays.asList(new String[] { "function", "return" });    // <-- Update
     }
 
     private List<Token> tokens;
@@ -65,6 +65,12 @@ public class Parser {
     private Token lead(Token token) throws Exception {
         if (token.kind.equals("ident") && token.value.equals("function")) {
             return func(token);
+        } else if (token.kind.equals("ident") && token.value.equals("return")) {    // <-- Add
+            token.kind = "ret";
+            if (!token().kind.equals("eob")) {
+                token.left = expression(0);
+            }
+            return token;
         } else if (factorKinds.contains(token.kind)) {
             return token;
         } else if (unaryOperators.contains(token.value)) {

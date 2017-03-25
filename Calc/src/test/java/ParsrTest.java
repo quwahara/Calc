@@ -320,6 +320,38 @@ public class ParsrTest {
     }
     
     @Test
+    public void func11() throws Exception {
+        text = "function f() { return }";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "[block]\n"
+                + "  ret \"return\"\n"
+                + "", block.get(0).indent(""));
+    }
+    
+    @Test
+    public void func12() throws Exception {
+        text = "function f() { return 0 }";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals(""
+                + "func \"function\"\n"
+                + "[ident]\n"
+                + "  ident \"f\"\n"
+                + "[params]\n"
+                + "[block]\n"
+                + "  ret \"return\"\n"
+                + "  [left]\n"
+                + "    digit \"0\"\n"
+                + "", block.get(0).indent(""));
+    }
+    
+    @Test
     public void invoke1() {
         text = "f(";
         try {
@@ -417,7 +449,6 @@ public class ParsrTest {
         text = "f(a,b)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        System.out.println(block.get(0).indent(""));
         assertEquals(""
                 + "paren \"(\"\n"
                 + "[left]\n"
@@ -433,7 +464,6 @@ public class ParsrTest {
         text = "f(a,b,c)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        System.out.println(block.get(0).indent(""));
         assertEquals(""
                 + "paren \"(\"\n"
                 + "[left]\n"

@@ -220,6 +220,86 @@ public class InterpreterTest {
         assertEquals(6, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_22() throws Exception {
+        text += "function f(a, b, c) {";
+        text += "  return a + b + c";
+        text += "}";
+        text += "v = f(1, 2, 3)";
+        actual = run();
+        assertEquals(4, actual.size());
+        assertEquals(6, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_23() throws Exception {
+        text += "function f(a) {";
+        text += "  b = a + 1";
+        text += "  return b";
+        text += "}";
+        text += "v = f(1)";
+        actual = run();
+        assertEquals(3, actual.size());
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_24() throws Exception {
+        text += "function f(a) {";
+        text += "  b = a + 1";
+        text += "  c = b + 1";
+        text += "  return c";
+        text += "}";
+        text += "v = f(1)";
+        actual = run();
+        assertEquals(4, actual.size());
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_25() throws Exception {
+        text += "function f(a) {";
+        text += "  b = a + 1";
+        text += "  c = b + 1";
+        text += "  return c";
+        text += "  d = c + 1";
+        text += "}";
+        text += "v = f(1)";
+        actual = run();
+        assertEquals(4, actual.size());
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_26() throws Exception {
+        text += "function f1(a) {";
+        text += "  return a + 1";
+        text += "}";
+        text += "function f2(b) {";
+        text += "  return f1(b) + 1";
+        text += "}";
+        text += "v = f2(1)";
+        actual = run();
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_27() throws Exception {
+        text += "v = 0";
+        text += "function inc() {";
+        text += "  v = v + 1";
+        text += "  return";
+        text += "}";
+        text += "function incX2() {";
+        text += "  inc()";
+        text += "  inc()";
+        text += "  return";
+        text += "}";
+        text += "incX2()";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
