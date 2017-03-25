@@ -542,6 +542,188 @@ public class InterpreterTest {
         assertEquals(1, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_43() throws Exception {
+        text += "v = 0 == 0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_44() throws Exception {
+        text += "v = 0 == 1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_45() throws Exception {
+        text += "v = 1 == 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_46() throws Exception {
+        text += "v = 0 != 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_47() throws Exception {
+        text += "v = 0 != 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_48() throws Exception {
+        text += "v = 1 != 1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_49() throws Exception {
+        text += "v = 0 < 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_50() throws Exception {
+        text += "v = 0 < 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_51() throws Exception {
+        text += "v = 1 < 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_52() throws Exception {
+        text += "v = 0 <= 0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_53() throws Exception {
+        text += "v = 0 <= 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_54() throws Exception {
+        text += "v = 1 <= 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_55() throws Exception {
+        text += "v = 0 > 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_56() throws Exception {
+        text += "v = 0 > 1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_57() throws Exception {
+        text += "v = 1 > 0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_58() throws Exception {
+        text += "v = 0 >= 0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_59() throws Exception {
+        text += "v = 0 >= 1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_60() throws Exception {
+        text += "v = 1 >= 0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_61() throws Exception {
+        text += "v = 0 && 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_62() throws Exception {
+        text += "v = 0 && 1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_63() throws Exception {
+        text += "v = 1 && 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_64() throws Exception {
+        text += "v = 0 || 0";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_65() throws Exception {
+        text += "v = 0 || 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_66() throws Exception {
+        text += "v = 1 || 1";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_67() throws Exception {
+        text += "v = !0";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_68() throws Exception {
+        text += "v = !1";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();

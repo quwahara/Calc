@@ -21,12 +21,20 @@ public class Parser {
         degrees.put("/", 60);
         degrees.put("+", 50);
         degrees.put("-", 50);
+        degrees.put("==", 40); // <-- Add
+        degrees.put("!=", 40);
+        degrees.put("<", 40);
+        degrees.put("<=", 40);
+        degrees.put(">", 40);
+        degrees.put(">=", 40);
+        degrees.put("&&", 30);
+        degrees.put("||", 30);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
-        unaryOperators = Arrays.asList(new String[] { "+", "-" });
-        reserved = Arrays.asList(new String[] { "function", "return", "if", "else" });  // <-- Update
+        unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });                 // <-- Update
+        reserved = Arrays.asList(new String[] { "function", "return", "if", "else" });
     }
 
     private List<Token> tokens;
