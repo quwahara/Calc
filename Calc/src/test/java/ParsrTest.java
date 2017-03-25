@@ -9,6 +9,7 @@ import org.junit.Test;
 public class ParsrTest {
 
     String text;
+    String exp;
     Lexer lexer = new Lexer();
     Parser parser = new Parser();
     List<Token> block;
@@ -16,6 +17,7 @@ public class ParsrTest {
     @Before
     public void setUp() throws Exception {
         text = "";
+        exp = "";
     }
 
     @Test
@@ -326,8 +328,13 @@ public class ParsrTest {
         text = "function f(a) {}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n"
-                + "[block]\n" + "", block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "[block]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -335,8 +342,12 @@ public class ParsrTest {
         text = "function f() {}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "[block]\n" + "",
-                block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "[block]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -344,8 +355,14 @@ public class ParsrTest {
         text = "function f(a, b) {}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n"
-                + "  ident \"b\"\n" + "[block]\n" + "", block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        exp += "[block]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -353,8 +370,15 @@ public class ParsrTest {
         text = "function f(a, b, c) {}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n"
-                + "  ident \"b\"\n" + "  ident \"c\"\n" + "[block]\n" + "", block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        exp += "  ident \"c\"\n";
+        exp += "[block]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -362,8 +386,13 @@ public class ParsrTest {
         text = "function f() { return }";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "[block]\n"
-                + "  ret \"return\"\n" + "", block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "[block]\n";
+        exp += "  ret \"return\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -371,8 +400,15 @@ public class ParsrTest {
         text = "function f() { return 0 }";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "func \"function\"\n" + "[ident]\n" + "  ident \"f\"\n" + "[params]\n" + "[block]\n"
-                + "  ret \"return\"\n" + "  [left]\n" + "    digit \"0\"\n" + "", block.get(0).indent(""));
+        exp += "func \"function\"\n";
+        exp += "[ident]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "[block]\n";
+        exp += "  ret \"return\"\n";
+        exp += "  [left]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -446,8 +482,11 @@ public class ParsrTest {
         text = "f()";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "paren \"(\"\n" + "[left]\n" + "  ident \"f\"\n" + "[params]\n" + "",
-                block.get(0).indent(""));
+        exp += "paren \"(\"\n";
+        exp += "[left]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -455,8 +494,12 @@ public class ParsrTest {
         text = "f(a)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "paren \"(\"\n" + "[left]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n" + "",
-                block.get(0).indent(""));
+        exp += "paren \"(\"\n";
+        exp += "[left]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -464,8 +507,13 @@ public class ParsrTest {
         text = "f(a,b)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "paren \"(\"\n" + "[left]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n"
-                + "  ident \"b\"\n" + "", block.get(0).indent(""));
+        exp += "paren \"(\"\n";
+        exp += "[left]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -473,8 +521,14 @@ public class ParsrTest {
         text = "f(a,b,c)";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "paren \"(\"\n" + "[left]\n" + "  ident \"f\"\n" + "[params]\n" + "  ident \"a\"\n"
-                + "  ident \"b\"\n" + "  ident \"c\"\n" + "", block.get(0).indent(""));
+        exp += "paren \"(\"\n";
+        exp += "[left]\n";
+        exp += "  ident \"f\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        exp += "  ident \"c\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -537,7 +591,11 @@ public class ParsrTest {
         text = "if(1){}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "if \"if\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n", block.get(0).indent(""));
+        exp += "if \"if\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -545,8 +603,12 @@ public class ParsrTest {
         text = "if(1)1";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "if \"if\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n" + "  digit \"1\"\n",
-                block.get(0).indent(""));
+        exp += "if \"if\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        exp += "  digit \"1\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -565,8 +627,13 @@ public class ParsrTest {
         text = "if(1){}else 1";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "if \"if\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n" + "[blockOfElse]\n"
-                + "  digit \"1\"\n", block.get(0).indent(""));
+        exp += "if \"if\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        exp += "[blockOfElse]\n";
+        exp += "  digit \"1\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -585,8 +652,12 @@ public class ParsrTest {
         text = "if(1){}else{}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "if \"if\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n" + "[blockOfElse]\n",
-                block.get(0).indent(""));
+        exp += "if \"if\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        exp += "[blockOfElse]\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -649,8 +720,12 @@ public class ParsrTest {
         text = "while(1){}";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "while \"while\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n" + "",
-                block.get(0).indent(""));
+        exp += "while \"while\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        exp += "";
+        assertEquals(exp, block.get(0).indent(""));
     }
 
     @Test
@@ -658,7 +733,11 @@ public class ParsrTest {
         text = "while(1) 3";
         block = parser.init(lexer.init(text).tokenize()).block();
         assertEquals(1, block.size());
-        assertEquals("" + "while \"while\"\n" + "[left]\n" + "  digit \"1\"\n" + "[block]\n" + "  digit \"3\"\n" + "",
-                block.get(0).indent(""));
+        exp += "while \"while\"\n";
+        exp += "[left]\n";
+        exp += "  digit \"1\"\n";
+        exp += "[block]\n";
+        exp += "  digit \"3\"\n";
+        assertEquals(exp, block.get(0).indent(""));
     }
 }
