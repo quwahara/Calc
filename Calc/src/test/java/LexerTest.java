@@ -1,5 +1,4 @@
 
-
 import static org.junit.Assert.*;
 
 import java.util.List;
@@ -11,12 +10,12 @@ public class LexerTest {
 
     Lexer lxr;
     List<Token> act;
-    
+
     @Before
     public void before() {
         lxr = new Lexer();
     }
-    
+
     @Test
     public void testTokenize_empty() throws Exception {
         act = lxr.init("").tokenize();
@@ -35,6 +34,14 @@ public class LexerTest {
         assertEquals(1, act.size());
         assertEquals("sign", act.get(0).kind);
         assertEquals("+", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_symbol() throws Exception {
+        act = lxr.init(",").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("symbol", act.get(0).kind);
+        assertEquals(",", act.get(0).value);
     }
 
     @Test

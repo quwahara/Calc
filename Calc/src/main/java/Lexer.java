@@ -48,6 +48,10 @@ public class Lexer {
         return c == '{' || c == '}';
     }
 
+    private boolean isSymbolStart(char c) {
+        return c == ',';
+    }
+
     private boolean isDigitStart(char c) throws Exception {
         return Character.isDigit(c);
     }
@@ -77,6 +81,13 @@ public class Lexer {
         } else {
             t.kind = "eob";
         }
+        t.value = Character.toString(next());
+        return t;
+    }
+
+    private Token symbol() throws Exception {
+        Token t = new Token();
+        t.kind = "symbol";
         t.value = Character.toString(next());
         return t;
     }
@@ -119,6 +130,8 @@ public class Lexer {
             return paren();
         } else if (isCurlyStart(c())) {
             return curly();
+        } else if (isSymbolStart(c())) {
+            return symbol();
         } else {
             throw new Exception("Not a character for tokens");
         }
