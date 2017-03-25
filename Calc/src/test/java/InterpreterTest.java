@@ -116,6 +116,62 @@ public class InterpreterTest {
         assertEquals(9, (int) actual.get("a").value);
     }
 
+    @Test
+    public void testBody_11() throws Exception {
+        text = "a = +1";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(1, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_12() throws Exception {
+        text = "a = -1";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(-1, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_13() throws Exception {
+        text = "a = +1 + 2";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(3, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_14() throws Exception {
+        text = "a = -1 + 2";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(1, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_15() throws Exception {
+        text = "a = +(1 + 2)";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(3, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_16() throws Exception {
+        text = "a = -(1 + 2)";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(-3, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_17() throws Exception {
+        text = "a = 3 * -(1 + 2)";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(-9, (int) actual.get("a").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
