@@ -38,6 +38,16 @@ public class LexerTest {
     }
 
     @Test
+    public void testTokenize_paren() throws Exception {
+        act = lxr.init("()").tokenize();
+        assertEquals(2, act.size());
+        assertEquals("paren", act.get(0).kind);
+        assertEquals("(", act.get(0).value);
+        assertEquals("paren", act.get(1).kind);
+        assertEquals(")", act.get(1).value);
+    }
+
+    @Test
     public void testTokenize_digit() throws Exception {
         act = lxr.init("0").tokenize();
         assertEquals(1, act.size());
@@ -62,18 +72,18 @@ public class LexerTest {
     }
 
     @Test
-    public void testTokenize_variable() throws Exception {
+    public void testTokenize_ident() throws Exception {
         act = lxr.init("a").tokenize();
         assertEquals(1, act.size());
-        assertEquals("variable", act.get(0).kind);
+        assertEquals("ident", act.get(0).kind);
         assertEquals("a", act.get(0).value);
     }
 
     @Test
-    public void testTokenize_variable2() throws Exception {
+    public void testTokenize_ident2() throws Exception {
         act = lxr.init("a1").tokenize();
         assertEquals(1, act.size());
-        assertEquals("variable", act.get(0).kind);
+        assertEquals("ident", act.get(0).kind);
         assertEquals("a1", act.get(0).value);
     }
 
@@ -81,7 +91,7 @@ public class LexerTest {
     public void testTokenize_expr1() throws Exception {
         act = lxr.init("ans1 = 9 / 3 * 4 - 6 + 5").tokenize();
         assertEquals(11, act.size());
-        assertEquals("variable", act.get(0).kind);
+        assertEquals("ident", act.get(0).kind);
         assertEquals("ans1", act.get(0).value);
         assertEquals("sign", act.get(1).kind);
         assertEquals("=", act.get(1).value);

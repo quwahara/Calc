@@ -150,4 +150,12 @@ public class ParsrTest {
         assertEquals("(a = ((1 + b) = (((((2 - 4) + ((((5 * 6) / 7) * 8) / 9)) - ((((10 / 12) * 13) / 14) * 15)) + 16) - 17)))", block.get(0).paren());
     }
     
+    @Test
+    public void line1_println() throws Exception {
+        text = "println(1)";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals("(println ( 1)", block.get(0).paren());
+    }
+    
 }

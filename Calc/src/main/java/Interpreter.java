@@ -4,16 +4,20 @@ import java.util.Map;
 
 public class Interpreter {
 
-    public Map<String, Integer> variables;
+    public Map<String, Func> functions;
+    public Map<String, Variable> variables;
     List<Token> body;
 
     public Interpreter init(List<Token> body) {
+        functions = new HashMap<>();
+        Func f = new Println();
+        functions.put(f.name, f);
         variables = new HashMap<>();
         this.body = body;
         return this;
     }
 
-    public Map<String, Integer> run() throws Exception {
+    public Map<String, Variable> run() throws Exception {
         body(body);
         return variables;
     }
@@ -27,8 +31,10 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
-        } else if (expr.kind.equals("variable")) {
-            return var(expr);
+        } else if (expr.kind.equals("ident")) { // <-- Update
+            return ident(expr);
+        } else if (expr.kind.equals("paren")) { // <-- Add
+            return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
         } else if (expr.kind.equals("sign")) {
@@ -42,24 +48,33 @@ public class Interpreter {
         return Integer.decode(token.value);
     }
 
-    public Object var(Token token) {
+    public Object ident(Token token) {
         String name = token.value;
-        if (!variables.containsKey(name)) {
-            variables.put(name, 0);
+        if (functions.containsKey(name)) {
+            return functions.get(name);
         }
-        return name;
+        if (variables.containsKey(name)) {
+            return variables.get(name);
+        } else {
+            Variable v = new Variable();
+            v.name = name;
+            v.value = 0;
+            variables.put(name, v);
+            return v;
+        }
     }
 
-    public String assign(Token expr) throws Exception {
-        String name = variable(expression(expr.left));
+    public Variable assign(Token expr) throws Exception {
+        Variable variable = variable(expression(expr.left));
         Integer value = value(expression(expr.right));
-        variables.put(name, value);
-        return name;
+        variable.value = value;
+        variables.put(variable.name, variable);
+        return variable;
     }
 
-    public String variable(Object value) throws Exception {
-        if (value instanceof String) {
-            return (String) value;
+    public Variable variable(Object value) throws Exception {
+        if (value instanceof Variable) {
+            return (Variable) value;
         } else {
             throw new Exception("left value error");
         }
@@ -68,11 +83,11 @@ public class Interpreter {
     public Integer value(Object value) throws Exception {
         if (value instanceof Integer) {
             return (Integer) value;
-        } else if (value instanceof String) {
-            return variables.get((String) value);
-        } else {
-            throw new Exception("right value error");
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return v.value;
         }
+        throw new Exception("right value error");
     }
 
     public Object calc(Token expr) throws Exception {
@@ -91,14 +106,54 @@ public class Interpreter {
         }
     }
 
+    private Object invoke(Token expr) throws Exception {
+        Func f = func(expression(expr.left));
+        Integer value = value(expression(expr.right));
+        return f.invoke(value);
+    }
+
+    public Func func(Object value) throws Exception {
+        if (value instanceof Func) {
+            return (Func) value;
+        } else {
+            throw new Exception("Not a function");
+        }
+    }
+
+    public static class Variable {
+        public String name;
+        public Integer value;
+
+        @Override
+        public String toString() {
+            return name + " " + value;
+        }
+    }
+
+    public static abstract class Func {
+        public String name;
+
+        abstract public Object invoke(Object arg) throws Exception;
+    }
+
+    public static class Println extends Func {
+        public Println() {
+            name = "println";
+        }
+
+        @Override
+        public Object invoke(Object arg) throws Exception {
+            System.out.println(arg);
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         String text = "a = 3 + 4 * 5";
+        text += "println(a)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
-        Map<String, Integer> variables = new Interpreter().init(blk).run();
-        for (Map.Entry<String, Integer> variable : variables.entrySet()) {
-            System.out.println(variable.getKey() + " " + variable.getValue());
-        }
-        // --> a 23
+        new Interpreter().init(blk).run();
+        // --> 23
     }
 }

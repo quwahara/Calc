@@ -14,12 +14,13 @@ public class Parser {
 
     public Parser() {
         degrees = new HashMap<>();
+        degrees.put("(", 80);   // <-- Add
         degrees.put("*", 60);
         degrees.put("/", 60);
         degrees.put("+", 50);
         degrees.put("-", 50);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "variable" });
+        factorKinds = Arrays.asList(new String[] { "digit", "ident" }); // <-- Update
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
     }
@@ -50,6 +51,13 @@ public class Parser {
         return t;
     }
 
+    private Token consume(String expectedValue) throws Exception {
+        if (!expectedValue.equals(token().value)) {
+            throw new Exception("Not expected value");
+        }
+        return next();
+    }
+
     private Token lead(Token token) throws Exception {
         if (factorKinds.contains(token.kind)) {
             return token;
@@ -74,6 +82,11 @@ public class Parser {
                 leftDegree -= 1;
             }
             operator.right = expression(leftDegree);
+            return operator;
+        } else if(operator.kind.equals("paren") && operator.value.equals("(")) {    // <-- Add
+            operator.left = left;
+            operator.right = expression(0);
+            consume(")");
             return operator;
         } else {
             throw new Exception("The token cannot place there.");
