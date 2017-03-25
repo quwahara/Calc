@@ -172,6 +172,18 @@ public class InterpreterTest {
         assertEquals(-9, (int) actual.get("a").value);
     }
 
+    @Test
+    public void testBody_18() throws Exception {
+        text += "v = 0";
+        text += "function addV(num) {";
+        text += "  v = v + num";
+        text += "}";
+        text += "addV(3)";
+        actual = run();
+        assertEquals(2, actual.size());
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();

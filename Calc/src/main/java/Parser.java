@@ -11,7 +11,8 @@ public class Parser {
     private List<String> factorKinds;
     private List<String> binaryKinds;
     private List<String> rightAssocs;
-    private List<String> unaryOperators;    // <-- Add
+    private List<String> unaryOperators;
+    private List<String> reserved;
 
     public Parser() {
         degrees = new HashMap<>();
@@ -24,7 +25,8 @@ public class Parser {
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
-        unaryOperators = Arrays.asList(new String[] { "+", "-" }); // <-- Add
+        unaryOperators = Arrays.asList(new String[] { "+", "-" });
+        reserved = Arrays.asList(new String[] { "function" });
     }
 
     private List<Token> tokens;
@@ -61,9 +63,11 @@ public class Parser {
     }
 
     private Token lead(Token token) throws Exception {
-        if (factorKinds.contains(token.kind)) {
+        if (token.kind.equals("ident") && token.value.equals("function")) {
+            return func(token);
+        } else if (factorKinds.contains(token.kind)) {
             return token;
-        } else if (unaryOperators.contains(token.value)) { // <-- Add
+        } else if (unaryOperators.contains(token.value)) {
             token.kind = "unary";
             token.left = expression(70);
             return token;
@@ -74,6 +78,29 @@ public class Parser {
         } else {
             throw new Exception("The token cannot place there.");
         }
+    }
+
+    private Token func(Token token) throws Exception {
+        token.kind = "func";
+        token.ident = ident();
+        consume("(");
+        token.param = ident();
+        consume(")");
+        consume("{");
+        token.block = block();
+        consume("}");
+        return token;
+    }
+
+    private Token ident() throws Exception {
+        Token id = next();
+        if (!id.kind.equals("ident")) {
+            throw new Exception("Not an identical token.");
+        }
+        if (reserved.contains(id.value)) {
+            throw new Exception("The token was reserved.");
+        }
+        return id;
     }
 
     private int degree(Token t) {

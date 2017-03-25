@@ -33,11 +33,13 @@ public class Interpreter {
             return digit(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
+        } else if (expr.kind.equals("func")) {
+            return func(expr);
         } else if (expr.kind.equals("paren")) {
             return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
-        } else if (expr.kind.equals("unary")) { // <-- Add
+        } else if (expr.kind.equals("unary")) {
             return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
             return calc(expr);
@@ -64,6 +66,30 @@ public class Interpreter {
             variables.put(name, v);
             return v;
         }
+    }
+
+    public Object func(Token token) throws Exception {
+        String name = token.ident.value;
+        if (functions.containsKey(name)) {
+            throw new Exception("Name was used");
+        }
+        if (variables.containsKey(name)) {
+            throw new Exception("Name was used");
+        }
+        String param = token.param.value;
+        if (functions.containsKey(param)) {
+            throw new Exception("Parameter name was used");
+        }
+        if (variables.containsKey(param)) {
+            throw new Exception("Parameter name was used");
+        }
+        DynamicFunc func = new DynamicFunc();
+        func.context = this;
+        func.name = name;
+        func.param = variable(ident(token.param));
+        func.block = token.block;
+        functions.put(name, func);
+        return null;
     }
 
     public Variable assign(Token expr) throws Exception {
@@ -161,12 +187,31 @@ public class Interpreter {
         }
     }
 
+    public static class DynamicFunc extends Func {
+
+        public Interpreter context;
+        public Variable param;
+        public List<Token> block;
+
+        @Override
+        public Object invoke(Object arg) throws Exception {
+            param.value = context.value(arg);
+            context.body(block);
+            return null;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        String text = "a = -1";    // <-- Update
-        text += "println(a)";
+        String text = "";
+        text += "v = 0";
+        text += "function addV(num) {";
+        text += "  v = v + num";
+        text += "}";
+        text += "addV(3)";
+        text += "println(v)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> -1
+        // --> 3
     }
 }
