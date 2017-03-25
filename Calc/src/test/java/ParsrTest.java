@@ -143,6 +143,14 @@ public class ParsrTest {
     }
     
     @Test
+    public void line1_token9_3() throws Exception {
+        text = "a = (1 + 2) / 3";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        assertEquals("(a = ((1 + 2) / 3))", block.get(0).paren());
+    }
+    
+    @Test
     public void line1_expression1() throws Exception {
         text = "a = 1 + b = 2 - 4 + 5 * 6 / 7 * 8 / 9 - 10 / 12 * 13 / 14 * 15 + 16 - 17";
         block = parser.init(lexer.init(text).tokenize()).block();

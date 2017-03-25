@@ -108,6 +108,14 @@ public class InterpreterTest {
         }
     }
 
+    @Test
+    public void testBody_10() throws Exception {
+        text = "a = (1 + 2) * 3";
+        actual = run();
+        assertEquals(1, actual.size());
+        assertEquals(9, (int) actual.get("a").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
