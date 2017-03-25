@@ -724,6 +724,86 @@ public class InterpreterTest {
         assertEquals(0, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_69() throws Exception {
+        text += "v = 0";
+        text += "while(0) {";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_70() throws Exception {
+        text += "v = 0";
+        text += "while(v < 1) {";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(1, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_71() throws Exception {
+        text += "v = 0";
+        text += "while(v < 2) {";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_72() throws Exception {
+        text += "v = 0";
+        text += "while(v < 3) {";
+        text += "  v = v + 1";
+        text += "}";
+        actual = run();
+        assertEquals(3, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_73() throws Exception {
+        text += "v = 0";
+        text += "while(v < 4) {";
+        text += "  v = v + 1";
+        text += "  if (v == 2) {";
+        text += "    break";
+        text += "  }";
+        text += "}";
+        actual = run();
+        assertEquals(2, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_74() throws Exception {
+        text += "i = 0";
+        text += "v = 0";
+        text += "while(i < 4) {";
+        text += "  i = i + 1";
+        text += "  v = v + 1";
+        text += "  j = 0";
+        text += "  while (j < 4) {";
+        text += "    j = j + 1";
+        text += "    if (j <= 2) {";
+        text += "      v = v + 10";
+        text += "      if (j == 2) {";
+        text += "        v = v + 100";
+        text += "        break";
+        text += "      }";
+        text += "    }";
+        text += "  }";
+        text += "  if (i == 2) {";
+        text += "    v = v + 1000";
+        text += "    break";
+        text += "  }";
+        text += "}";
+        actual = run();
+        assertEquals(1242, (int) actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();

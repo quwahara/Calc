@@ -19,14 +19,14 @@ public class Interpreter {
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null);
+        body(body, null, null);
         return variables;
     }
 
-    public Object body(List<Token> body, boolean[] ret) throws Exception {
+    public Object body(List<Token> body, boolean[] ret, boolean[] brk) throws Exception {
         for (Token exprs : body) {
             if (exprs.kind.equals("if")) {
-                Object val = if_(exprs, ret);
+                Object val = if_(exprs, ret, brk);
                 if (ret != null && ret[0]) {
                     return val;
                 }
@@ -40,7 +40,17 @@ public class Interpreter {
                 } else {
                     return expression(exprs.left);
                 }
-            } else {
+            } else if (exprs.kind.equals("while")) {
+                Object val = while_(exprs, ret);
+                if (ret != null && ret[0]) {
+                    return val;
+                }
+            } else if (exprs.kind.equals("brk")) {
+                if (brk == null) {
+                    throw new Exception("Can not break");
+                }
+                brk[0] = true;
+                return null;            } else {
                 expression(exprs);
             }
         }
@@ -54,7 +64,7 @@ public class Interpreter {
         return expression(token.left);
     }
 
-    public Object if_(Token token, boolean[] ret) throws Exception {
+    public Object if_(Token token, boolean[] ret, boolean[] brk) throws Exception {
         List<Token> block;
         if (isTrue(token.left)) {
             block = token.block;
@@ -62,12 +72,27 @@ public class Interpreter {
             block = token.blockOfElse;
         }
         if (block != null) {
-            return body(block, ret);
+            return body(block, ret, brk);
         } else {
             return null;
         }
     }
 
+    public Object while_(Token token, boolean[] ret) throws Exception {
+        boolean[] brk = new boolean[1];
+        Object val;
+        while (isTrue(token.left)) {
+            val = body(token.block, ret, brk);
+            if (ret != null && ret[0]) {
+                return val;
+            }
+            if (brk[0]) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
     public boolean isTrue(Token token) throws Exception {
         return isTrue(value(expression(token)));
     }
@@ -284,7 +309,7 @@ public class Interpreter {
                 params.get(i).value = value;
             }
             boolean[] ret = new boolean[1];
-            return context.body(block, ret);
+            return context.body(block, ret, null);
         }
     }
 
