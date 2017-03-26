@@ -19,7 +19,7 @@ public class Interpreter {
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null, null);
+        body(body, null, null); // <-- Update
         return variables;
     }
 
@@ -40,17 +40,18 @@ public class Interpreter {
                 } else {
                     return expression(exprs.left);
                 }
-            } else if (exprs.kind.equals("while")) {
+            } else if (exprs.kind.equals("while")) { // <-- Add 1
                 Object val = while_(exprs, ret);
                 if (ret != null && ret[0]) {
                     return val;
                 }
-            } else if (exprs.kind.equals("brk")) {
+            } else if (exprs.kind.equals("brk")) { // <-- Add 2
                 if (brk == null) {
                     throw new Exception("Can not break");
                 }
                 brk[0] = true;
-                return null;            } else {
+                return null;
+            } else {
                 expression(exprs);
             }
         }
@@ -92,7 +93,7 @@ public class Interpreter {
         }
         return null;
     }
-    
+
     public boolean isTrue(Token token) throws Exception {
         return isTrue(value(expression(token)));
     }
@@ -309,20 +310,23 @@ public class Interpreter {
                 params.get(i).value = value;
             }
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null);
+            return context.body(block, ret, null); // <-- Update
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "println(10 > 1)";
-        text += "println(5 <= 1)";
-        text += "println(!(1 == 2) && (3 != 4))";
+        text += "v = 0";
+        text += "while (v < 4) {";
+        text += "  v = v + 1";
+        text += "  if (v == 2) {";
+        text += "    break";
+        text += "  }";
+        text += "}";
+        text += "println(v)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 1
-        // --> 0
-        // --> 1
+        // --> 2
     }
 }
