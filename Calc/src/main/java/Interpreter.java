@@ -5,22 +5,22 @@ import java.util.Map;
 
 public class Interpreter {
 
-    public Map<String, Func> functions;
-    public Map<String, Variable> variables;
+    Scope global;
+    Scope local;
     List<Token> body;
 
     public Interpreter init(List<Token> body) {
-        functions = new HashMap<>();
+        global = new Scope();
+        local = global;
         Func f = new Println();
-        functions.put(f.name, f);
-        variables = new HashMap<>();
+        global.functions.put(f.name, f);
         this.body = body;
         return this;
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null, null); // <-- Update
-        return variables;
+        body(body, null, null);
+        return global.variables;
     }
 
     public Object body(List<Token> body, boolean[] ret, boolean[] brk) throws Exception {
@@ -40,12 +40,12 @@ public class Interpreter {
                 } else {
                     return expression(exprs.left);
                 }
-            } else if (exprs.kind.equals("while")) { // <-- Add 1
+            } else if (exprs.kind.equals("while")) {
                 Object val = while_(exprs, ret);
                 if (ret != null && ret[0]) {
                     return val;
                 }
-            } else if (exprs.kind.equals("brk")) { // <-- Add 2
+            } else if (exprs.kind.equals("brk")) {
                 if (brk == null) {
                     throw new Exception("Can not break");
                 }
@@ -128,37 +128,43 @@ public class Interpreter {
 
     public Object ident(Token token) {
         String name = token.value;
-        if (functions.containsKey(name)) {
-            return functions.get(name);
+
+        Scope scope = local;
+        while (scope != null) {
+            if (scope.functions.containsKey(name)) {
+                return scope.functions.get(name);
+            }
+            if (scope.variables.containsKey(name)) {
+                return scope.variables.get(name);
+            }
+            scope = scope.parent;
         }
-        if (variables.containsKey(name)) {
-            return variables.get(name);
-        } else {
-            Variable v = new Variable();
-            v.name = name;
-            v.value = 0;
-            variables.put(name, v);
-            return v;
-        }
+        Variable v = new Variable();
+        v.name = name;
+        v.value = 0;
+        local.variables.put(name, v);
+        return v;
     }
 
     public Object func(Token token) throws Exception {
         String name = token.ident.value;
-        if (functions.containsKey(name)) {
+
+        if (local.functions.containsKey(name)) {
             throw new Exception("Name was used");
         }
-        if (variables.containsKey(name)) {
+        if (local.variables.containsKey(name)) {
             throw new Exception("Name was used");
         }
         for (Token p : token.params) {
             String param = p.value;
-            if (functions.containsKey(param)) {
+            if (local.functions.containsKey(param)) {
                 throw new Exception("Parameter name was used");
             }
-            if (variables.containsKey(param)) {
+            if (local.variables.containsKey(param)) {
                 throw new Exception("Parameter name was used");
             }
         }
+
         DynamicFunc func = new DynamicFunc();
         func.context = this;
         func.name = name;
@@ -167,7 +173,7 @@ public class Interpreter {
             func.params.add(variable(ident(p)));
         }
         func.block = token.block;
-        functions.put(name, func);
+        local.functions.put(name, func);
         return null;
     }
 
@@ -175,7 +181,6 @@ public class Interpreter {
         Variable variable = variable(expression(expr.left));
         Integer value = value(expression(expr.right));
         variable.value = value;
-        variables.put(variable.name, variable);
         return variable;
     }
 
@@ -203,7 +208,7 @@ public class Interpreter {
             return left;
         } else if (expr.value.equals("-")) {
             return -left;
-        } else if (expr.value.equals("!")) { // <-- Add
+        } else if (expr.value.equals("!")) {
             return toInteger(!isTrue(left));
         } else {
             throw new Exception("Unknown sign for unary calc");
@@ -221,7 +226,7 @@ public class Interpreter {
             return left * right;
         } else if (expr.value.equals("/")) {
             return left / right;
-        } else if (expr.value.equals("==")) { // <-- Add
+        } else if (expr.value.equals("==")) {
             return toInteger(left == right);
         } else if (expr.value.equals("!=")) {
             return toInteger(left != right);
@@ -248,11 +253,17 @@ public class Interpreter {
 
     private Object invoke(Token expr) throws Exception {
         Func f = func(expression(expr.left));
+        Scope parent = local;
+        Scope scope = new Scope();
+        scope.parent = parent;
+        local = scope;
         List<Object> values = new ArrayList<Object>();
         for (Token arg : expr.params) {
             values.add(value(expression(arg)));
         }
-        return f.invoke(values);
+        Object val = f.invoke(values);
+        local = parent;
+        return val;
     }
 
     public Func func(Object value) throws Exception {
@@ -260,6 +271,18 @@ public class Interpreter {
             return (Func) value;
         } else {
             throw new Exception("Not a function");
+        }
+    }
+
+    public static class Scope {
+
+        public Scope parent;
+        public Map<String, Func> functions;
+        public Map<String, Variable> variables;
+
+        public Scope() {
+            functions = new HashMap<>();
+            variables = new HashMap<>();
         }
     }
 
@@ -310,7 +333,7 @@ public class Interpreter {
                 params.get(i).value = value;
             }
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null); // <-- Update
+            return context.body(block, ret, null);
         }
     }
 
