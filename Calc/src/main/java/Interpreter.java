@@ -171,7 +171,6 @@ public class Interpreter {
         Variable variable = variable(expression(expr.left));
         Integer value = value(expression(expr.right));
         variable.value = value;
-        variables.put(variable.name, variable);
         return variable;
     }
 
