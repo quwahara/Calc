@@ -86,7 +86,7 @@ public class Interpreter {
         DynamicFunc func = new DynamicFunc();
         func.context = this;
         func.name = name;
-        func.param = variable(ident(token.param));
+        func.param = token.param;
         func.block = token.block;
         functions.put(name, func);
         return null;
@@ -189,12 +189,13 @@ public class Interpreter {
     public static class DynamicFunc extends Func {
 
         public Interpreter context;
-        public Variable param;
+        public Token param;
         public List<Token> block;
 
         @Override
         public Object invoke(Object arg) throws Exception {
-            param.value = context.value(arg);
+            Variable v = context.variable(context.ident(param));
+            v.value = context.value(arg);
             context.body(block);
             return null;
         }
