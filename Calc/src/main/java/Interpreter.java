@@ -77,22 +77,18 @@ public class Interpreter {
         if (variables.containsKey(name)) {
             throw new Exception("Name was used");
         }
+        List<String> paramCheckList = new ArrayList<String>();
         for (Token p : token.params) {
             String param = p.value;
-            if (functions.containsKey(param)) {
+            if (paramCheckList.contains(param)) {
                 throw new Exception("Parameter name was used");
             }
-            if (variables.containsKey(param)) {
-                throw new Exception("Parameter name was used");
-            }
+            paramCheckList.add(param);
         }
         DynamicFunc func = new DynamicFunc();
         func.context = this;
         func.name = name;
-        func.params = new ArrayList<Variable>();
-        for (Token p : token.params) {
-            func.params.add(variable(ident(p)));
-        }
+        func.params = token.params;
         func.block = token.block;
         functions.put(name, func);
         return null;
@@ -199,19 +195,19 @@ public class Interpreter {
     public static class DynamicFunc extends Func {
 
         public Interpreter context;
-        public List<Variable> params;
+        public List<Token> params;
         public List<Token> block;
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
             for (int i = 0; i < params.size(); ++i) {
-                Integer value;
+                Token param = params.get(i);
+                Variable v = context.variable(context.ident(param));
                 if (i < args.size()) {
-                    value = context.value(args.get(i));
+                    v.value = context.value(args.get(i));
                 } else {
-                    value = null;
+                    v.value = null;
                 }
-                params.get(i).value = value;
             }
             context.body(block);
             return null;
