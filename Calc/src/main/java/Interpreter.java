@@ -311,6 +311,9 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
+            Scope parent = context.local;
+            context.local = new Scope();
+            context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
                 Variable v = context.variable(context.ident(param));
@@ -321,7 +324,9 @@ public class Interpreter {
                 }
             }
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null); // <-- Update
+            Object val = context.body(block, ret, null);
+            context.local = parent;
+            return val;
         }
     }
 
