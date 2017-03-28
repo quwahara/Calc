@@ -33,7 +33,7 @@ public class Interpreter {
             return digit(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
-        } else if (expr.kind.equals("func")) {
+        } else if (expr.kind.equals("func")) { // <-- Add
             return func(expr);
         } else if (expr.kind.equals("paren")) {
             return invoke(expr);
