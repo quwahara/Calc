@@ -76,13 +76,6 @@ public class Interpreter {
         if (variables.containsKey(name)) {
             throw new Exception("Name was used");
         }
-        String param = token.param.value;
-        if (functions.containsKey(param)) {
-            throw new Exception("Parameter name was used");
-        }
-        if (variables.containsKey(param)) {
-            throw new Exception("Parameter name was used");
-        }
         DynamicFunc func = new DynamicFunc();
         func.context = this;
         func.name = name;
