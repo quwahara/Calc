@@ -21,12 +21,20 @@ public class Parser {
         degrees.put("/", 60);
         degrees.put("+", 50);
         degrees.put("-", 50);
+        degrees.put("==", 40);
+        degrees.put("!=", 40);
+        degrees.put("<", 40);
+        degrees.put("<=", 40);
+        degrees.put(">", 40);
+        degrees.put(">=", 40);
+        degrees.put("&&", 30);
+        degrees.put("||", 30);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
-        unaryOperators = Arrays.asList(new String[] { "+", "-" });
-        reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while" }); // <-- Update
+        unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
+        reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while", "break"});  // <-- Update
     }
 
     private List<Token> tokens;
@@ -146,7 +154,7 @@ public class Parser {
         }
         return token;
     }
-
+    
     private Token ident() throws Exception {
         Token id = next();
         if (!id.kind.equals("ident")) {
