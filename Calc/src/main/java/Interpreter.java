@@ -77,7 +77,7 @@ public class Interpreter {
         if (variables.containsKey(name)) {
             throw new Exception("Name was used");
         }
-        List<String> paramCheckList = new ArrayList<String>();
+        List<String> paramCheckList = new ArrayList<String>(); // <-- Add
         for (Token p : token.params) {
             String param = p.value;
             if (paramCheckList.contains(param)) {
@@ -88,7 +88,7 @@ public class Interpreter {
         DynamicFunc func = new DynamicFunc();
         func.context = this;
         func.name = name;
-        func.params = token.params;
+        func.params = token.params; // <-- Update
         func.block = token.block;
         functions.put(name, func);
         return null;
