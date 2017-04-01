@@ -199,7 +199,7 @@ public class Interpreter {
             return left;
         } else if (expr.value.equals("-")) {
             return -left;
-        } else if (expr.value.equals("!")) { // <-- Add
+        } else if (expr.value.equals("!")) {
             return toInteger(!isTrue(left));
         } else {
             throw new Exception("Unknown sign for unary calc");
@@ -217,7 +217,7 @@ public class Interpreter {
             return left * right;
         } else if (expr.value.equals("/")) {
             return left / right;
-        } else if (expr.value.equals("==")) { // <-- Add
+        } else if (expr.value.equals("==")) {
             return toInteger(left == right);
         } else if (expr.value.equals("!=")) {
             return toInteger(left != right);
