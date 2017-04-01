@@ -5,22 +5,22 @@ import java.util.Map;
 
 public class Interpreter {
 
-    public Map<String, Func> functions;
-    public Map<String, Variable> variables;
+    Scope global;
+    Scope local;
     List<Token> body;
 
     public Interpreter init(List<Token> body) {
-        functions = new HashMap<>();
+        global = new Scope();
+        local = global;
         Func f = new Println();
-        functions.put(f.name, f);
-        variables = new HashMap<>();
+        global.functions.put(f.name, f);
         this.body = body;
         return this;
     }
 
     public Map<String, Variable> run() throws Exception {
-        body(body, null, null); // <-- Update
-        return variables;
+        body(body, null, null);
+        return global.variables;
     }
 
     public Object body(List<Token> body, boolean[] ret, boolean[] brk) throws Exception {
@@ -128,26 +128,30 @@ public class Interpreter {
 
     public Object ident(Token token) {
         String name = token.value;
-        if (functions.containsKey(name)) {
-            return functions.get(name);
+
+        Scope scope = local;
+        while (scope != null) {
+            if (scope.functions.containsKey(name)) {
+                return scope.functions.get(name);
+            }
+            if (scope.variables.containsKey(name)) {
+                return scope.variables.get(name);
+            }
+            scope = scope.parent;
         }
-        if (variables.containsKey(name)) {
-            return variables.get(name);
-        } else {
-            Variable v = new Variable();
-            v.name = name;
-            v.value = 0;
-            variables.put(name, v);
-            return v;
-        }
+        Variable v = new Variable();
+        v.name = name;
+        v.value = 0;
+        local.variables.put(name, v);
+        return v;
     }
 
     public Object func(Token token) throws Exception {
         String name = token.ident.value;
-        if (functions.containsKey(name)) {
+        if (local.functions.containsKey(name)) {
             throw new Exception("Name was used");
         }
-        if (variables.containsKey(name)) {
+        if (local.variables.containsKey(name)) {
             throw new Exception("Name was used");
         }
         List<String> paramCheckList = new ArrayList<String>();
@@ -163,7 +167,7 @@ public class Interpreter {
         func.name = name;
         func.params = token.params;
         func.block = token.block;
-        functions.put(name, func);
+        local.functions.put(name, func);
         return null;
     }
 
@@ -171,7 +175,6 @@ public class Interpreter {
         Variable variable = variable(expression(expr.left));
         Integer value = value(expression(expr.right));
         variable.value = value;
-        variables.put(variable.name, variable);
         return variable;
     }
 
@@ -259,6 +262,18 @@ public class Interpreter {
         }
     }
 
+    public static class Scope {
+
+        public Scope parent;
+        public Map<String, Func> functions;
+        public Map<String, Variable> variables;
+
+        public Scope() {
+            functions = new HashMap<>();
+            variables = new HashMap<>();
+        }
+    }
+
     public static class Variable {
         public String name;
         public Integer value;
@@ -296,6 +311,9 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
+            Scope parent = context.local;
+            context.local = new Scope();
+            context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
                 Variable v = context.variable(context.ident(param));
@@ -306,19 +324,20 @@ public class Interpreter {
                 }
             }
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null); // <-- Update
+            Object val = context.body(block, ret, null);
+            context.local = parent;
+            return val;
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "v = 0";
-        text += "while (v < 4) {";
-        text += "  v = v + 1";
-        text += "  if (v == 2) {";
-        text += "    break";
-        text += "  }";
+        text += "v = 1";
+        text += "function f(a) {";
+        text += "  v = a + 100";
+        text += "  println(v)";
         text += "}";
+        text += "f(v)";
         text += "println(v)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();

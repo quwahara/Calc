@@ -180,7 +180,7 @@ public class InterpreterTest {
         text += "}";
         text += "addV(3)";
         actual = run();
-        assertEquals(2, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(3, (int) actual.get("v").value);
     }
 
@@ -204,7 +204,7 @@ public class InterpreterTest {
         text += "}";
         text += "f(1, 2)";
         actual = run();
-        assertEquals(3, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(3, (int) actual.get("v").value);
     }
 
@@ -216,7 +216,7 @@ public class InterpreterTest {
         text += "}";
         text += "f(1, 2, 3)";
         actual = run();
-        assertEquals(4, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(6, (int) actual.get("v").value);
     }
 
@@ -227,7 +227,7 @@ public class InterpreterTest {
         text += "}";
         text += "v = f(1, 2, 3)";
         actual = run();
-        assertEquals(4, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(6, (int) actual.get("v").value);
     }
 
@@ -239,7 +239,7 @@ public class InterpreterTest {
         text += "}";
         text += "v = f(1)";
         actual = run();
-        assertEquals(3, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(2, (int) actual.get("v").value);
     }
 
@@ -252,7 +252,7 @@ public class InterpreterTest {
         text += "}";
         text += "v = f(1)";
         actual = run();
-        assertEquals(4, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(3, (int) actual.get("v").value);
     }
 
@@ -266,7 +266,7 @@ public class InterpreterTest {
         text += "}";
         text += "v = f(1)";
         actual = run();
-        assertEquals(4, actual.size());
+        assertEquals(1, actual.size());
         assertEquals(3, (int) actual.get("v").value);
     }
 
