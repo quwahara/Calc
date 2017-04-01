@@ -40,17 +40,19 @@ public class Interpreter {
                 } else {
                     return expression(exprs.left);
                 }
-            } else if (exprs.kind.equals("while")) { // <-- Add 1
+            } else if (exprs.kind.equals("while")) {
                 Object val = while_(exprs, ret);
                 if (ret != null && ret[0]) {
                     return val;
                 }
-            } else if (exprs.kind.equals("brk")) { // <-- Add 2
+            } else if (exprs.kind.equals("brk")) {
                 if (brk == null) {
                     throw new Exception("Can not break");
                 }
                 brk[0] = true;
                 return null;
+            } else if (exprs.kind.equals("var")) { // <-- Add
+                var(exprs);
             } else {
                 expression(exprs);
             }
@@ -100,6 +102,30 @@ public class Interpreter {
 
     public boolean isTrue(Integer value) throws Exception {
         return 0 != value;
+    }
+
+    public Object var(Token token) throws Exception {
+        for (Token item : token.block) {
+            Token ident;
+            if (item.kind.equals("ident")) {
+                ident = item;
+            } else if (item.kind.equals("sign") && item.value.equals("=")) {
+                ident = item.left;
+            } else {
+                throw new Exception("var error");
+            }
+            String name = ident.value;
+            if (!local.variables.containsKey(name)) {
+                Variable v = new Variable();
+                v.name = name;
+                v.value = 0;
+                local.variables.put(name, v);
+            }
+            if (item.kind.equals("sign") && item.value.equals("=")) {
+                expression(item);
+            }
+        }
+        return null;
     }
 
     public Object expression(Token expr) throws Exception {
@@ -316,7 +342,10 @@ public class Interpreter {
             context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
-                Variable v = context.variable(context.ident(param));
+                String name = param.value;
+                Variable v = new Variable();
+                v.name = name;
+                context.local.variables.put(name, v);
                 if (i < args.size()) {
                     v.value = context.value(args.get(i));
                 } else {
@@ -332,13 +361,17 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "v = 1";
-        text += "function f(a) {";
-        text += "  v = a + 100";
-        text += "  println(v)";
+        text += "a = 1";
+        text += "b = 1";
+        text += "function f() {";
+        text += "  var a = 10";
+        text += "  b = 10";
+        text += "  println(a)";
+        text += "  println(b)";
         text += "}";
-        text += "f(v)";
-        text += "println(v)";
+        text += "f()";
+        text += "println(a)";
+        text += "println(b)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();

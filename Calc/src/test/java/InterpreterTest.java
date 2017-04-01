@@ -804,6 +804,39 @@ public class InterpreterTest {
         assertEquals(1242, (int) actual.get("v").value);
     }
 
+    @Test
+    public void testBody_75() throws Exception {
+        text += "a = 1";
+        text += "function f() {";
+        text += "  var a = 10";
+        text += "}";
+        text += "f()";
+        actual = run();
+        assertEquals(1, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_76() throws Exception {
+        text += "a = 1";
+        text += "function f(a) {";
+        text += "  a = 10";
+        text += "}";
+        text += "f()";
+        actual = run();
+        assertEquals(1, (int) actual.get("a").value);
+    }
+
+    @Test
+    public void testBody_77() throws Exception {
+        text += "a = 1";
+        text += "function f() {";
+        text += "  a = 10";
+        text += "}";
+        text += "f()";
+        actual = run();
+        assertEquals(10, (int) actual.get("a").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
