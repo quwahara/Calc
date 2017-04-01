@@ -740,4 +740,118 @@ public class ParserTest {
         exp += "  digit \"3\"\n";
         assertEquals(exp, block.get(0).indent(""));
     }
+
+    @Test
+    public void var1() {
+        text = "var";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void var2() throws Exception {
+        text = "var a";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "var \"var\"\n";
+        exp += "[block]\n";
+        exp += "  ident \"a\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void var3() {
+        text = "var a =";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void var4() throws Exception {
+        text = "var a = 0";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "var \"var\"\n";
+        exp += "[block]\n";
+        exp += "  sign \"=\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void var5() {
+        text = "var a,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void var6() throws Exception {
+        text = "var a, b";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "var \"var\"\n";
+        exp += "[block]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void var7() {
+        text = "var a, b,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void var8() {
+        text = "var a = 0,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void var9() throws Exception {
+        text = "var a = 0, b = 0";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "var \"var\"\n";
+        exp += "[block]\n";
+        exp += "  sign \"=\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        exp += "  sign \"=\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"b\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
 }
