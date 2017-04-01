@@ -34,7 +34,8 @@ public class Parser {
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
-        reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while", "break", "var" }); // <-- Update
+        // Update
+        reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while", "break", "var" });
     }
 
     private List<Token> tokens;
@@ -86,7 +87,8 @@ public class Parser {
         } else if (token.kind.equals("ident") && token.value.equals("break")) {
             token.kind = "brk";
             return token;
-        } else if (token.kind.equals("ident") && token.value.equals("var")) { // <-- Add
+            // Add
+        } else if (token.kind.equals("ident") && token.value.equals("var")) {
             return var(token);
         } else if (factorKinds.contains(token.kind)) {
             return token;
