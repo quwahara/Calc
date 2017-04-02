@@ -106,26 +106,33 @@ public class Interpreter {
 
     public Object var(Token token) throws Exception {
         for (Token item : token.block) {
-            Token ident;
+            String name;
+            Token expr;
             if (item.kind.equals("ident")) {
-                ident = item;
+                name = item.value;
+                expr = null;
             } else if (item.kind.equals("sign") && item.value.equals("=")) {
-                ident = item.left;
+                name = item.left.value;
+                expr = item;
             } else {
                 throw new Exception("var error");
             }
-            String name = ident.value;
             if (!local.variables.containsKey(name)) {
-                Variable v = new Variable();
-                v.name = name;
-                v.value = 0;
-                local.variables.put(name, v);
+                newVariable(name);
             }
-            if (item.kind.equals("sign") && item.value.equals("=")) {
-                expression(item);
+            if (expr != null) {
+                expression(expr);
             }
         }
         return null;
+    }
+
+    public Variable newVariable(String name) {
+        Variable v = new Variable();
+        v.name = name;
+        v.value = 0;
+        local.variables.put(name, v);
+        return v;
     }
 
     public Object expression(Token expr) throws Exception {
@@ -154,7 +161,6 @@ public class Interpreter {
 
     public Object ident(Token token) {
         String name = token.value;
-
         Scope scope = local;
         while (scope != null) {
             if (scope.functions.containsKey(name)) {
@@ -165,11 +171,7 @@ public class Interpreter {
             }
             scope = scope.parent;
         }
-        Variable v = new Variable();
-        v.name = name;
-        v.value = 0;
-        local.variables.put(name, v);
-        return v;
+        return newVariable(name);
     }
 
     public Object func(Token token) throws Exception {
@@ -277,7 +279,13 @@ public class Interpreter {
         for (Token arg : expr.params) {
             values.add(value(expression(arg)));
         }
-        return f.invoke(values);
+        Scope parent = local;
+        local = new Scope();
+        local.parent = parent;
+        Object val;
+        val = f.invoke(values);
+        local = parent;
+        return val;
     }
 
     public Func func(Object value) throws Exception {
@@ -337,15 +345,9 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
-            Scope parent = context.local;
-            context.local = new Scope();
-            context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
-                String name = param.value;
-                Variable v = new Variable();
-                v.name = name;
-                context.local.variables.put(name, v);
+                Variable v = context.newVariable(param.value);
                 if (i < args.size()) {
                     v.value = context.value(args.get(i));
                 } else {
@@ -353,28 +355,35 @@ public class Interpreter {
                 }
             }
             boolean[] ret = new boolean[1];
-            Object val = context.body(block, ret, null);
-            context.local = parent;
-            return val;
+            return context.body(block, ret, null);
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
         text += "a = 1";
-        text += "b = 1";
+        text += "b = 2";
+        text += "c = 3";
         text += "function f() {";
-        text += "  var a = 10";
-        text += "  b = 10";
+        text += "  var a = 10, b";
+        text += "  b = 20";
+        text += "  c = 30";
         text += "  println(a)";
         text += "  println(b)";
+        text += "  println(c)";
         text += "}";
         text += "f()";
         text += "println(a)";
         text += "println(b)";
+        text += "println(c)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
+        // --> 10
+        // --> 20
+        // --> 30
+        // --> 1
         // --> 2
+        // --> 30
     }
 }
