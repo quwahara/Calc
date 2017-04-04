@@ -53,6 +53,8 @@ public class Interpreter {
                 return null;
             } else if (exprs.kind.equals("var")) { // <-- Add
                 var(exprs);
+            } else if (exprs.kind.equals("func")) {
+                func(exprs);
             } else {
                 expression(exprs);
             }
@@ -97,7 +99,7 @@ public class Interpreter {
     }
 
     public boolean isTrue(Token token) throws Exception {
-        return isTrue(value(expression(token)));
+        return isTrue(integer(expression(token)));
     }
 
     public boolean isTrue(Integer value) throws Exception {
@@ -140,8 +142,10 @@ public class Interpreter {
             return digit(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
-        } else if (expr.kind.equals("func")) {
-            return func(expr);
+            // } else if (expr.kind.equals("func")) {
+            // return func(expr);
+        } else if (expr.kind.equals("fexpr")) {
+            return fexpr(expr);
         } else if (expr.kind.equals("paren")) {
             return invoke(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
@@ -199,10 +203,29 @@ public class Interpreter {
         return null;
     }
 
+    public Object fexpr(Token token) throws Exception {
+        List<String> paramCheckList = new ArrayList<String>();
+        for (Token p : token.params) {
+            String param = p.value;
+            if (paramCheckList.contains(param)) {
+                throw new Exception("Parameter name was used");
+            }
+            paramCheckList.add(param);
+        }
+        FuncExpr func = new FuncExpr();
+        func.context = new Interpreter();
+        func.context.global = global;
+        func.context.local = local;
+        func.context.body = body;
+        func.params = token.params;
+        func.block = token.block;
+        return func;
+    }
+
     public Variable assign(Token expr) throws Exception {
         Variable variable = variable(expression(expr.left));
-        Integer value = value(expression(expr.right));
-        variable.value = value;
+        variable.value = value(expression(expr.right));
+        ;
         return variable;
     }
 
@@ -214,18 +237,30 @@ public class Interpreter {
         }
     }
 
-    public Integer value(Object value) throws Exception {
+    public Object value(Object value) throws Exception {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof FuncExpr) {
+            return (FuncExpr) value;
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return value(v.value);
+        }
+        throw new Exception("right value error");
+    }
+
+    public Integer integer(Object value) throws Exception {
         if (value instanceof Integer) {
             return (Integer) value;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
-            return v.value;
+            return integer(v.value);
         }
         throw new Exception("right value error");
     }
 
     public Object unaryCalc(Token expr) throws Exception {
-        Integer left = value(expression(expr.left));
+        Integer left = integer(expression(expr.left));
         if (expr.value.equals("+")) {
             return left;
         } else if (expr.value.equals("-")) {
@@ -238,8 +273,8 @@ public class Interpreter {
     }
 
     public Object calc(Token expr) throws Exception {
-        Integer left = value(expression(expr.left));
-        Integer right = value(expression(expr.right));
+        Integer left = integer(expression(expr.left));
+        Integer right = integer(expression(expr.right));
         if (expr.value.equals("+")) {
             return left + right;
         } else if (expr.value.equals("-")) {
@@ -277,19 +312,22 @@ public class Interpreter {
         Func f = func(expression(expr.left));
         List<Object> values = new ArrayList<Object>();
         for (Token arg : expr.params) {
-            values.add(value(expression(arg)));
+            values.add(integer(expression(arg)));
         }
-        Scope parent = local;
-        local = new Scope();
-        local.parent = parent;
-        Object val;
-        val = f.invoke(values);
-        local = parent;
-        return val;
+        // Scope parent = local;
+        // local = new Scope();
+        // local.parent = parent;
+        // Object val;
+        // val = f.invoke(values);
+        // local = parent;
+        // return val;
+        return f.invoke(values);
     }
 
     public Func func(Object value) throws Exception {
-        if (value instanceof Func) {
+        if (value instanceof Variable) {
+            return func(((Variable) value).value);
+        } else if (value instanceof Func) {
             return (Func) value;
         } else {
             throw new Exception("Not a function");
@@ -310,11 +348,11 @@ public class Interpreter {
 
     public static class Variable {
         public String name;
-        public Integer value;
+        public Object value;
 
         @Override
         public String toString() {
-            return name + " " + value;
+            return name + " " + value.toString();
         }
     }
 
@@ -345,6 +383,9 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
+            Scope parent = context.local;
+            context.local = new Scope();
+            context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
                 Variable v = context.newVariable(param.value);
@@ -354,28 +395,71 @@ public class Interpreter {
                     v.value = null;
                 }
             }
+            // boolean[] ret = new boolean[1];
+            // return context.body(block, ret, null);
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null);
+            Object val = context.body(block, ret, null);
+            context.local = parent;
+            return val;
+        }
+    }
+
+    public static class FuncExpr extends Func {
+
+        public Interpreter context;
+        public List<Token> params;
+        public List<Token> block;
+
+        @Override
+        public Object invoke(List<Object> args) throws Exception {
+            Scope parent = context.local;
+            context.local = new Scope();
+            context.local.parent = parent;
+            for (int i = 0; i < params.size(); ++i) {
+                Token param = params.get(i);
+                Variable v = context.newVariable(param.value);
+                if (i < args.size()) {
+                    v.value = context.integer(args.get(i));
+                } else {
+                    v.value = null;
+                }
+            }
+            // return context.body(block, ret, null);
+            boolean[] ret = new boolean[1];
+            Object val = context.body(block, ret, null);
+            context.local = parent;
+            return val;
         }
     }
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "a = 1";
-        text += "b = 2";
-        text += "c = 3";
-        text += "function f() {";
-        text += "  var a = 10, b";
-        text += "  b = 20";
-        text += "  c = 30";
-        text += "  println(a)";
-        text += "  println(b)";
-        text += "  println(c)";
-        text += "}";
-        text += "f()";
-        text += "println(a)";
-        text += "println(b)";
-        text += "println(c)";
+        text += "var f = (function() {";
+        text += " var i = 0";
+        text += " return function() {";
+        text += "   i = i + 1";
+        text += "   return i";
+        text += " }";
+        text += "})()";
+        text += "println(f())";
+        text += "println(f())";
+        text += "";
+        text += "";
+        // text += "a = 1";
+        // text += "b = 2";
+        // text += "c = 3";
+        // text += "function f() {";
+        // text += " var a = 10, b";
+        // text += " b = 20";
+        // text += " c = 30";
+        // text += " println(a)";
+        // text += " println(b)";
+        // text += " println(c)";
+        // text += "}";
+        // text += "f()";
+        // text += "println(a)";
+        // text += "println(b)";
+        // text += "println(c)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
