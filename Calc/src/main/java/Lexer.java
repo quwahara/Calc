@@ -49,6 +49,10 @@ public class Lexer {
         return c == '{' || c == '}';
     }
 
+    private boolean isBracketStart(char c) {
+        return c == '[' || c == ']';
+    }
+
     private boolean isSymbolStart(char c) {
         return c == ',';
     }
@@ -59,6 +63,10 @@ public class Lexer {
 
     private boolean isIdentStart(char c) throws Exception {
         return Character.isAlphabetic(c);
+    }
+
+    private boolean isString(char c) {
+        return c == '"';
     }
 
     private Token sign() throws Exception {
@@ -109,6 +117,13 @@ public class Lexer {
         return t;
     }
 
+    private Token bracket() throws Exception {
+        Token t = new Token();
+        t.kind = "bracket";
+        t.value = Character.toString(next());
+        return t;
+    }
+
     private Token symbol() throws Exception {
         Token t = new Token();
         t.kind = "symbol";
@@ -140,6 +155,51 @@ public class Lexer {
         return t;
     }
 
+    private Token string() throws Exception {
+        StringBuilder b = new StringBuilder();
+        next();
+        while (c() != '"') {
+            if (c() != '\\') {
+                b.append(next());
+            } else {
+                next();
+                char c = c();
+                if (c == '"') {
+                    b.append('"');
+                    next();
+                } else if (c == '\\') {
+                    b.append('\\');
+                    next();
+                } else if (c == '/') {
+                    b.append('/');
+                    next();
+                } else if (c == 'b') {
+                    b.append('\b');
+                    next();
+                } else if (c == 'f') {
+                    b.append('\f');
+                    next();
+                } else if (c == 'n') {
+                    b.append('\n');
+                    next();
+                } else if (c == 'r') {
+                    b.append('\r');
+                    next();
+                } else if (c == 't') {
+                    b.append('\t');
+                    next();
+                } else {
+                    throw new Exception("string error");
+                }
+            }
+        }
+        next();
+        Token t = new Token();
+        t.kind = "string";
+        t.value = b.toString();
+        return t;
+    }
+
     public Token nextToken() throws Exception {
         skipSpace();
         if (isEOT()) {
@@ -154,8 +214,12 @@ public class Lexer {
             return paren();
         } else if (isCurlyStart(c())) {
             return curly();
+        } else if (isBracketStart(c())) {
+            return bracket();
         } else if (isSymbolStart(c())) {
             return symbol();
+        } else if (isString(c())) {
+            return string();
         } else {
             throw new Exception("Not a character for tokens");
         }
@@ -172,7 +236,7 @@ public class Lexer {
     }
 
     public static void main(String[] args) throws Exception {
-        String text = " ans1 = 10 + 20 ";
+        String text = " \"aa\" ";
         List<Token> tokens = new Lexer().init(text).tokenize();
         for (Token token : tokens) {
             System.out.println(token.toString());

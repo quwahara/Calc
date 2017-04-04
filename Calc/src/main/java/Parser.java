@@ -17,6 +17,7 @@ public class Parser {
     public Parser() {
         degrees = new HashMap<>();
         degrees.put("(", 80);
+        degrees.put("[", 80);
         degrees.put("*", 60);
         degrees.put("/", 60);
         degrees.put("+", 50);
@@ -30,7 +31,7 @@ public class Parser {
         degrees.put("&&", 30);
         degrees.put("||", 30);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "ident" });
+        factorKinds = Arrays.asList(new String[] { "digit", "ident", "string" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
@@ -87,7 +88,6 @@ public class Parser {
         } else if (token.kind.equals("ident") && token.value.equals("break")) {
             token.kind = "brk";
             return token;
-            // Add
         } else if (token.kind.equals("ident") && token.value.equals("var")) {
             return var(token);
         } else if (factorKinds.contains(token.kind)) {
@@ -100,6 +100,8 @@ public class Parser {
             Token expr = expression(0);
             consume(")");
             return expr;
+        } else if (token.kind.equals("bracket") && token.value.equals("[")) {
+            return bracket(token);
         } else {
             throw new Exception("The token cannot place there.");
         }
@@ -185,6 +187,30 @@ public class Parser {
         return token;
     }
 
+    private Token bracket(Token token) throws Exception {
+        token.kind = "array";
+        token.params = new ArrayList<Token>();
+        if (token().value.equals("]")) {
+            consume("]");
+            return token;
+        }
+        if (token().value.equals(",")) {
+            token.params.add(null);
+        } else {
+            token.params.add(expression(0));
+        }
+        while (!token().value.equals("]")) {
+            consume(",");
+            if (token().value.equals(",")) {
+                token.params.add(null);
+            } else {
+                token.params.add(expression(0));
+            }
+        }
+        consume("]");
+        return token;
+    }
+
     private Token ident() throws Exception {
         Token id = next();
         if (!id.kind.equals("ident")) {
@@ -224,6 +250,11 @@ public class Parser {
                 }
             }
             consume(")");
+            return operator;
+        } else if (operator.kind.equals("bracket") && operator.value.equals("[")) {
+            operator.left = left;
+            operator.right = expression(0);
+            consume("]");
             return operator;
         } else {
             throw new Exception("The token cannot place there.");

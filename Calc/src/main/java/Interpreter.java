@@ -100,8 +100,19 @@ public class Interpreter {
         return isTrue(value(expression(token)));
     }
 
-    public boolean isTrue(Integer value) throws Exception {
-        return 0 != value;
+//    public boolean isTrue(Integer value) throws Exception {
+//        return 0 != value;
+//    }
+
+    public boolean isTrue(Object value) throws Exception {
+        if (value == null) {
+            return false;
+        } else if (value instanceof Integer) {
+            return 0 != ((Integer) value);
+        } else if (value instanceof List<?>) {
+            return true;
+        }
+        throw new Exception("isTrue error");
     }
 
     public Object var(Token token) throws Exception {
@@ -138,25 +149,60 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
+        } else if (expr.kind.equals("string")) {
+            return string(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
         } else if (expr.kind.equals("func")) {
             return func(expr);
         } else if (expr.kind.equals("paren")) {
             return invoke(expr);
+        } else if (expr.kind.equals("bracket")) {
+            return referenceArray(expr);
         } else if (expr.kind.equals("sign") && expr.value.equals("=")) {
             return assign(expr);
         } else if (expr.kind.equals("unary")) {
             return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
-            return calc(expr);
+            return calc2(expr);
+        } else if (expr.kind.equals("array")) {
+            return newArray(expr);
         } else {
             throw new Exception("Expression error");
         }
     }
 
+    public Object newArray(Token expr) throws Exception {
+        List<Object> a = new ArrayList<Object>();
+        for (Token param : expr.params) {
+            if (param == null) {
+                a.add(null);
+            } else {
+                a.add(value(expression(param)));
+            }
+        }
+        return a;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Object> array(Object value) throws Exception {
+        if (value instanceof List<?>) {
+            return (List<Object>) value;
+        } else if (value instanceof Variable) {
+            Object vv = ((Variable) value).value;
+            if (vv instanceof List<?>) {
+                return (List<Object>) vv;
+            }
+        }
+        throw new Exception("array error");
+    }
+
     public Integer digit(Token token) {
         return Integer.decode(token.value);
+    }
+
+    public String string(Token token) {
+        return token.value;
     }
 
     public Object ident(Token token) {
@@ -201,8 +247,7 @@ public class Interpreter {
 
     public Variable assign(Token expr) throws Exception {
         Variable variable = variable(expression(expr.left));
-        Integer value = value(expression(expr.right));
-        variable.value = value;
+        variable.value = value(expression(expr.right));
         return variable;
     }
 
@@ -214,18 +259,42 @@ public class Interpreter {
         }
     }
 
-    public Integer value(Object value) throws Exception {
+    public Object value(Object value) throws Exception {
         if (value instanceof Integer) {
             return (Integer) value;
+        } else if (value instanceof String) {
+            return (String) value;
+        } else if (value instanceof List<?>) {
+            return (List<Object>) value;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
-            return v.value;
+            Object vv = v.value;
+            if (vv instanceof Integer) {
+                return (Integer) vv;
+            } else if (vv instanceof String) {
+                return (String) vv;
+            } else if (vv instanceof List<?>) {
+                return (List<Object>) vv;
+            }
         }
         throw new Exception("right value error");
     }
 
+    public Integer integer(Object value) throws Exception {
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            Object vv = v.value;
+            if (vv instanceof Integer) {
+                return (Integer) vv;
+            }
+        }
+        throw new Exception("integer error");
+    }
+
     public Object unaryCalc(Token expr) throws Exception {
-        Integer left = value(expression(expr.left));
+        Integer left = integer(expression(expr.left));
         if (expr.value.equals("+")) {
             return left;
         } else if (expr.value.equals("-")) {
@@ -238,8 +307,8 @@ public class Interpreter {
     }
 
     public Object calc(Token expr) throws Exception {
-        Integer left = value(expression(expr.left));
-        Integer right = value(expression(expr.right));
+        Integer left = integer(expression(expr.left));
+        Integer right = integer(expression(expr.right));
         if (expr.value.equals("+")) {
             return left + right;
         } else if (expr.value.equals("-")) {
@@ -269,6 +338,76 @@ public class Interpreter {
         }
     }
 
+    public Object calc2(Token expr) throws Exception {
+        Object left = value(expression(expr.left));
+        Object right = value(expression(expr.right));
+        String sleft = null;
+        String sright = null;
+        Integer ileft = null;
+        Integer iright = null;
+
+        if (left instanceof String) {
+            sleft = (String) left;
+        } else if (left instanceof Integer) {
+            ileft = (Integer) left;
+        }
+        if (right instanceof String) {
+            sright = (String) right;
+        } else if (right instanceof Integer) {
+            iright = (Integer) right;
+        }
+
+        if (ileft != null && iright != null) {
+            return calc3(expr.value, ileft, iright);
+        } else if (sleft != null && sright != null) {
+            return calc4(expr.value, sleft, sright);
+        } else if (sleft != null && iright != null) {
+            return calc4(expr.value, sleft, iright.toString());
+        } else if (ileft != null && sright != null) {
+            return calc4(expr.value, ileft.toString(), sright);
+        } else {
+            throw new Exception("calc2 error");
+        }
+    }
+
+    public Object calc3(String sign, Integer left, Integer right) throws Exception {
+        if (sign.equals("+")) {
+            return left + right;
+        } else if (sign.equals("-")) {
+            return left - right;
+        } else if (sign.equals("*")) {
+            return left * right;
+        } else if (sign.equals("/")) {
+            return left / right;
+        } else if (sign.equals("==")) {
+            return toInteger(left == right);
+        } else if (sign.equals("!=")) {
+            return toInteger(left != right);
+        } else if (sign.equals("<")) {
+            return toInteger(left < right);
+        } else if (sign.equals("<=")) {
+            return toInteger(left <= right);
+        } else if (sign.equals(">")) {
+            return toInteger(left > right);
+        } else if (sign.equals(">=")) {
+            return toInteger(left >= right);
+        } else if (sign.equals("&&")) {
+            return toInteger(isTrue(left) && isTrue(right));
+        } else if (sign.equals("||")) {
+            return toInteger(isTrue(left) || isTrue(right));
+        } else {
+            throw new Exception("Unknown sign for Calc");
+        }
+    }
+
+    public Object calc4(String sign, String left, String right) throws Exception {
+        if (sign.equals("+")) {
+            return left + right;
+        } else {
+            throw new Exception("calc4 error");
+        }
+    }
+
     public Integer toInteger(boolean b) {
         return b ? 1 : 0;
     }
@@ -286,6 +425,12 @@ public class Interpreter {
         val = f.invoke(values);
         local = parent;
         return val;
+    }
+
+    private Object referenceArray(Token expr) throws Exception {
+        List<Object> a = array(expression(expr.left));
+        Integer index = integer(expression(expr.right));
+        return a.get(index);
     }
 
     public Func func(Object value) throws Exception {
@@ -310,7 +455,7 @@ public class Interpreter {
 
     public static class Variable {
         public String name;
-        public Integer value;
+        public Object value;
 
         @Override
         public String toString() {
@@ -361,21 +506,8 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "a = 1";
-        text += "b = 2";
-        text += "c = 3";
-        text += "function f() {";
-        text += "  var a = 10, b";
-        text += "  b = 20";
-        text += "  c = 30";
-        text += "  println(a)";
-        text += "  println(b)";
-        text += "  println(c)";
-        text += "}";
-        text += "f()";
-        text += "println(a)";
-        text += "println(b)";
-        text += "println(c)";
+        text += "a = [\"soft\", 99]";
+        text += "println(a[0] + a[1])";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
