@@ -279,13 +279,7 @@ public class Interpreter {
         for (Token arg : expr.params) {
             values.add(value(expression(arg)));
         }
-        Scope parent = local;
-        local = new Scope();
-        local.parent = parent;
-        Object val;
-        val = f.invoke(values);
-        local = parent;
-        return val;
+        return f.invoke(values);
     }
 
     public Func func(Object value) throws Exception {
@@ -345,6 +339,9 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
+            Scope parent = context.local;
+            context.local = new Scope();
+            context.local.parent = parent;
             for (int i = 0; i < params.size(); ++i) {
                 Token param = params.get(i);
                 Variable v = context.newVariable(param.value);
@@ -354,8 +351,11 @@ public class Interpreter {
                     v.value = null;
                 }
             }
+            Object val;
             boolean[] ret = new boolean[1];
-            return context.body(block, ret, null);
+            val = context.body(block, ret, null);
+            context.local = parent;
+            return val;
         }
     }
 
