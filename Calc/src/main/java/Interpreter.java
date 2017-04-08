@@ -199,7 +199,9 @@ public class Interpreter {
             paramCheckList.add(param);
         }
         DynamicFunc func = new DynamicFunc();
-        func.context = this;
+        func.context = new Interpreter();
+        func.context.global = global;
+        func.context.local = local;
         func.name = name;
         func.params = token.params;
         func.block = token.block;
@@ -216,7 +218,7 @@ public class Interpreter {
             }
             paramCheckList.add(param);
         }
-        FuncExpr func = new FuncExpr();
+        DynamicFunc func = new DynamicFunc();
         func.context = new Interpreter();
         func.context.global = global;
         func.context.local = local;
@@ -243,8 +245,8 @@ public class Interpreter {
     public Object value(Object value) throws Exception {
         if (value instanceof Integer) {
             return (Integer) value;
-        } else if (value instanceof FuncExpr) {
-            return (FuncExpr) value;
+        } else if (value instanceof Func) {
+            return (Func) value;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
             return value(v.value);
@@ -399,34 +401,6 @@ public class Interpreter {
         }
     }
 
-    public static class FuncExpr extends Func {
-
-        public Interpreter context;
-        public List<Token> params;
-        public List<Token> block;
-
-        @Override
-        public Object invoke(List<Object> args) throws Exception {
-            Scope parent = context.local;
-            context.local = new Scope();
-            context.local.parent = parent;
-            for (int i = 0; i < params.size(); ++i) {
-                Token param = params.get(i);
-                Variable v = context.newVariable(param.value);
-                if (i < args.size()) {
-                    v.value = context.integer(args.get(i));
-                } else {
-                    v.value = null;
-                }
-            }
-            Object val;
-            boolean[] ret = new boolean[1];
-            val = context.body(block, ret, null);
-            context.local = parent;
-            return val;
-        }
-    }
-        
     public static void main(String[] args) throws Exception {
         String text = "";
         text += "counter = (function() {";
