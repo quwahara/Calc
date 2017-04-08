@@ -412,6 +412,53 @@ public class ParserTest {
     }
 
     @Test
+    public void funcExpr1() throws Exception {
+        text = "function() { return 0 }";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "fexpr \"function\"\n";
+        exp += "[params]\n";
+        exp += "[block]\n";
+        exp += "  ret \"return\"\n";
+        exp += "  [left]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void funcExpr2() {
+        text = "function(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void funcExpr3() {
+        text = "function()";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void funcExpr4() {
+        text = "function() {";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
     public void invoke1() {
         text = "f(";
         try {

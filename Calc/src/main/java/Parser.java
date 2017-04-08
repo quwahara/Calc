@@ -106,8 +106,12 @@ public class Parser {
     }
 
     private Token func(Token token) throws Exception {
-        token.kind = "func";
-        token.ident = ident();
+        if (token().value.equals("(")) {
+            token.kind = "fexpr";
+        } else {
+            token.kind = "func";
+            token.ident = ident();
+        }
         consume("(");
         token.params = new ArrayList<Token>();
         if (!token().value.equals(")")) {
