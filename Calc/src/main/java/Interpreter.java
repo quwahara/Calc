@@ -247,9 +247,9 @@ public class Interpreter {
 
     public Object value(Object value) throws Exception {
         if (value instanceof Integer) {
-            return (Integer) value;
+            return value;
         } else if (value instanceof Func) {
-            return (Func) value;
+            return value;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
             return value(v.value);
