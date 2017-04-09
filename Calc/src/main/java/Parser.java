@@ -30,11 +30,11 @@ public class Parser {
         degrees.put("&&", 30);
         degrees.put("||", 30);
         degrees.put("=", 10);
-        factorKinds = Arrays.asList(new String[] { "digit", "ident" });
+        // Update
+        factorKinds = Arrays.asList(new String[] { "digit", "ident", "string" });
         binaryKinds = Arrays.asList(new String[] { "sign" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
-        // Update
         reserved = Arrays.asList(new String[] { "function", "return", "if", "else", "while", "break", "var" });
     }
 
@@ -87,7 +87,6 @@ public class Parser {
         } else if (token.kind.equals("ident") && token.value.equals("break")) {
             token.kind = "brk";
             return token;
-            // Add
         } else if (token.kind.equals("ident") && token.value.equals("var")) {
             return var(token);
         } else if (factorKinds.contains(token.kind)) {

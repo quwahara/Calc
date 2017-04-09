@@ -57,6 +57,10 @@ public class Lexer {
         return Character.isDigit(c);
     }
 
+    private boolean isString(char c) {
+        return c == '"';
+    }
+
     private boolean isIdentStart(char c) throws Exception {
         return Character.isAlphabetic(c);
     }
@@ -128,6 +132,51 @@ public class Lexer {
         return t;
     }
 
+    private Token string() throws Exception {
+        StringBuilder b = new StringBuilder();
+        next();
+        while (c() != '"') {
+            if (c() != '\\') {
+                b.append(next());
+            } else {
+                next();
+                char c = c();
+                if (c == '"') {
+                    b.append('"');
+                    next();
+                } else if (c == '\\') {
+                    b.append('\\');
+                    next();
+                } else if (c == '/') {
+                    b.append('/');
+                    next();
+                } else if (c == 'b') {
+                    b.append('\b');
+                    next();
+                } else if (c == 'f') {
+                    b.append('\f');
+                    next();
+                } else if (c == 'n') {
+                    b.append('\n');
+                    next();
+                } else if (c == 'r') {
+                    b.append('\r');
+                    next();
+                } else if (c == 't') {
+                    b.append('\t');
+                    next();
+                } else {
+                    throw new Exception("string error");
+                }
+            }
+        }
+        next();
+        Token t = new Token();
+        t.kind = "string";
+        t.value = b.toString();
+        return t;
+    }
+
     private Token ident() throws Exception {
         StringBuilder b = new StringBuilder();
         b.append(next());
@@ -148,6 +197,8 @@ public class Lexer {
             return sign();
         } else if (isDigitStart(c())) {
             return digit();
+        } else if (isString(c())) {
+            return string();
         } else if (isIdentStart(c())) {
             return ident();
         } else if (isParenStart(c())) {

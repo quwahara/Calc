@@ -207,6 +207,38 @@ public class LexerTest {
     }
 
     @Test
+    public void testTokenize_string1() throws Exception {
+        act = lxr.init("\"\"").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("string", act.get(0).kind);
+        assertEquals("", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_string2() throws Exception {
+        act = lxr.init("\"a\"").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("string", act.get(0).kind);
+        assertEquals("a", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_string3() throws Exception {
+        act = lxr.init("\"ab\"").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("string", act.get(0).kind);
+        assertEquals("ab", act.get(0).value);
+    }
+
+    @Test
+    public void testTokenize_string4() throws Exception {
+        act = lxr.init("\"\\\\\\/\\b\\f\\n\\r\\t\"").tokenize();
+        assertEquals(1, act.size());
+        assertEquals("string", act.get(0).kind);
+        assertEquals("\\/\b\f\n\r\t", act.get(0).value);
+    }
+
+    @Test
     public void testTokenize_expr1() throws Exception {
         act = lxr.init("ans1 = 9 / 3 * 4 - 6 + 5").tokenize();
         assertEquals(11, act.size());
