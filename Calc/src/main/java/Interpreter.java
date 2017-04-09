@@ -202,6 +202,7 @@ public class Interpreter {
         func.context = new Interpreter();
         func.context.global = global;
         func.context.local = local;
+        func.context.body = body;
         func.name = name;
         func.params = token.params;
         func.block = token.block;
