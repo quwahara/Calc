@@ -148,6 +148,7 @@ public class Interpreter {
             return ident(expr);
         } else if (expr.kind.equals("func")) {
             return func(expr);
+            // Add
         } else if (expr.kind.equals("fexpr")) {
             return fexpr(expr);
         } else if (expr.kind.equals("paren")) {
@@ -199,6 +200,7 @@ public class Interpreter {
             paramCheckList.add(param);
         }
         DynamicFunc func = new DynamicFunc();
+        // Update
         func.context = new Interpreter();
         func.context.global = global;
         func.context.local = local;
@@ -324,10 +326,11 @@ public class Interpreter {
     }
 
     public Func func(Object value) throws Exception {
-        if (value instanceof Variable) {
-            return func(((Variable) value).value);
-        } else if (value instanceof Func) {
+        if (value instanceof Func) {
             return (Func) value;
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return func(v.value);
         } else {
             throw new Exception("Not a function");
         }
