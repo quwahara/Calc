@@ -103,6 +103,8 @@ public class Interpreter {
     public boolean isTrue(Object value) throws Exception {
         if (value instanceof Integer) {
             return 0 != ((Integer) value);
+        } else if (value instanceof String) {
+            return !"".equals(value);
         } else if (value instanceof Func) {
             return true;
         } else {
@@ -144,6 +146,8 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
+        } else if (expr.kind.equals("string")) {
+            return string(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
         } else if (expr.kind.equals("func")) {
@@ -166,6 +170,10 @@ public class Interpreter {
 
     public Integer digit(Token token) {
         return Integer.decode(token.value);
+    }
+
+    public String string(Token token) {
+        return token.value;
     }
 
     public Object ident(Token token) {
@@ -248,6 +256,8 @@ public class Interpreter {
     public Object value(Object value) throws Exception {
         if (value instanceof Integer) {
             return value;
+        } else if (value instanceof String) {
+            return value;
         } else if (value instanceof Func) {
             return value;
         } else if (value instanceof Variable) {
@@ -260,6 +270,8 @@ public class Interpreter {
     public Integer integer(Object value) throws Exception {
         if (value instanceof Integer) {
             return (Integer) value;
+        } else if (value instanceof String) {
+            return Integer.decode((String) value);
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
             return integer(v.value);
@@ -267,48 +279,133 @@ public class Interpreter {
         throw new Exception("right value error");
     }
 
+    public String string(Object value) throws Exception {
+        if (value instanceof String) {
+            return (String) value;
+        } else if (value instanceof Integer) {
+            return value.toString();
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return string(v.value);
+        }
+        throw new Exception("right value error");
+    }
+
     public Object unaryCalc(Token expr) throws Exception {
-        Integer left = integer(expression(expr.left));
-        if (expr.value.equals("+")) {
+        Object value = value(expression(expr.left));
+        if (value instanceof Integer) {
+            return unaryCalcInteger(expr.value, (Integer) value);
+        } else if (value instanceof String) {
+            return unaryCalcString(expr.value, (String) value);
+        } else {
+            throw new Exception("unaryCalc error");
+        }
+    }
+
+    public Object unaryCalcInteger(String sign, Integer left) throws Exception {
+        if (sign.equals("+")) {
             return left;
-        } else if (expr.value.equals("-")) {
+        } else if (sign.equals("-")) {
             return -left;
-        } else if (expr.value.equals("!")) {
+        } else if (sign.equals("!")) {
             return toInteger(!isTrue(left));
         } else {
-            throw new Exception("Unknown sign for unary calc");
+            throw new Exception("unaryCalcInteger error");
+        }
+    }
+
+    public Object unaryCalcString(String sign, String left) throws Exception {
+        if (sign.equals("!")) {
+            return toInteger(!isTrue(left));
+        } else {
+            throw new Exception("unaryCalcString error");
         }
     }
 
     public Object calc(Token expr) throws Exception {
-        Integer left = integer(expression(expr.left));
-        Integer right = integer(expression(expr.right));
-        if (expr.value.equals("+")) {
-            return left + right;
-        } else if (expr.value.equals("-")) {
-            return left - right;
-        } else if (expr.value.equals("*")) {
-            return left * right;
-        } else if (expr.value.equals("/")) {
-            return left / right;
-        } else if (expr.value.equals("==")) {
-            return toInteger(left == right);
-        } else if (expr.value.equals("!=")) {
-            return toInteger(left != right);
-        } else if (expr.value.equals("<")) {
-            return toInteger(left < right);
-        } else if (expr.value.equals("<=")) {
-            return toInteger(left <= right);
-        } else if (expr.value.equals(">")) {
-            return toInteger(left > right);
-        } else if (expr.value.equals(">=")) {
-            return toInteger(left >= right);
-        } else if (expr.value.equals("&&")) {
-            return toInteger(isTrue(left) && isTrue(right));
-        } else if (expr.value.equals("||")) {
-            return toInteger(isTrue(left) || isTrue(right));
+        Object left = value(expression(expr.left));
+        Object right = value(expression(expr.right));
+        Integer ileft = null;
+        String sleft = null;
+
+        if (left instanceof Integer) {
+            ileft = (Integer) left;
+        } else if (left instanceof String) {
+            sleft = (String) left;
+        }
+
+        if (ileft != null) {
+            return calcInteger(expr.value, ileft, right);
+        } else if (sleft != null) {
+            return calcString(expr.value, sleft, right);
         } else {
-            throw new Exception("Unknown sign for Calc");
+            throw new Exception("calc error");
+        }
+    }
+
+    public Object calcInteger(String sign, Integer left, Object right) throws Exception {
+        if (sign.equals("+")) {
+            return left + integer(right);
+        } else if (sign.equals("-")) {
+            return left - integer(right);
+        } else if (sign.equals("*")) {
+            return left * integer(right);
+        } else if (sign.equals("/")) {
+            return left / integer(right);
+        } else if (sign.equals("==")) {
+            return toInteger(left == integer(right));
+        } else if (sign.equals("!=")) {
+            return toInteger(left != integer(right));
+        } else if (sign.equals("<")) {
+            return toInteger(left < integer(right));
+        } else if (sign.equals("<=")) {
+            return toInteger(left <= integer(right));
+        } else if (sign.equals(">")) {
+            return toInteger(left > integer(right));
+        } else if (sign.equals(">=")) {
+            return toInteger(left >= integer(right));
+        } else if (sign.equals("&&")) {
+            if (!isTrue(left)) {
+                return left;
+            }
+            return right;
+        } else if (sign.equals("||")) {
+            if (isTrue(left)) {
+                return left;
+            }
+            return right;
+        } else {
+            throw new Exception("calcIteger error");
+        }
+    }
+
+    public Object calcString(String sign, String left, Object right) throws Exception {
+        if (sign.equals("+")) {
+            return left + string(right);
+        } else if (sign.equals("==")) {
+            return toInteger(left.equals(string(right)));
+        } else if (sign.equals("!=")) {
+            return toInteger(!left.equals(string(right)));
+        } else if (sign.equals("<")) {
+            return toInteger(left.compareTo(string(right)) < 0);
+        } else if (sign.equals("<=")) {
+            return toInteger(left.compareTo(string(right)) <= 0);
+        } else if (sign.equals(">")) {
+            return toInteger(left.compareTo(string(right)) > 0);
+        } else if (sign.equals(">=")) {
+            return toInteger(left.compareTo(string(right)) >= 0);
+        } else if (sign.equals("&&")) {
+            if (!isTrue(left)) {
+                return left;
+            }
+            return right;
+        } else if (sign.equals("||")) {
+            if (isTrue(left)) {
+                return left;
+            }
+            return right;
+        } else {
+            throw new Exception("calcString error");
         }
     }
 
