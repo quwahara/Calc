@@ -57,7 +57,7 @@ public class Lexer {
         return Character.isDigit(c);
     }
 
-    private boolean isString(char c) {
+    private boolean isStringStart(char c) {
         return c == '"';
     }
 
@@ -197,7 +197,7 @@ public class Lexer {
             return sign();
         } else if (isDigitStart(c())) {
             return digit();
-        } else if (isString(c())) {
+        } else if (isStringStart(c())) {
             return string();
         } else if (isIdentStart(c())) {
             return ident();
