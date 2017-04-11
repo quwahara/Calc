@@ -146,13 +146,13 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
+            // Add
         } else if (expr.kind.equals("string")) {
             return string(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
         } else if (expr.kind.equals("func")) {
             return func(expr);
-            // Add
         } else if (expr.kind.equals("fexpr")) {
             return fexpr(expr);
         } else if (expr.kind.equals("paren")) {
@@ -504,19 +504,14 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "counter = (function() {";
-        text += "  var c = 0";
-        text += "  return function() {";
-        text += "    c = c + 1";
-        text += "    return c";
-        text += "  }";
-        text += "})()";
-        text += "println(counter())";
-        text += "println(counter())";
+        text += "var object = \"\"";
+        text += "if (!object) {";
+        text += " object = \"world\"";
+        text += "}";
+        text += "println(\"Hello \" + object + \"!\")";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 1
-        // --> 2
+        // --> Hello world!
     }
 }
