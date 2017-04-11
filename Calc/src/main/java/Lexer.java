@@ -197,6 +197,7 @@ public class Lexer {
             return sign();
         } else if (isDigitStart(c())) {
             return digit();
+            // Add
         } else if (isStringStart(c())) {
             return string();
         } else if (isIdentStart(c())) {
