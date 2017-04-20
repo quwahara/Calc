@@ -1,3 +1,4 @@
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class Interpreter {
                 }
                 brk[0] = true;
                 return null;
-            } else if (exprs.kind.equals("var")) { // <-- Add
+            } else if (exprs.kind.equals("var")) {
                 var(exprs);
             } else {
                 expression(exprs);
@@ -146,7 +147,6 @@ public class Interpreter {
     public Object expression(Token expr) throws Exception {
         if (expr.kind.equals("digit")) {
             return digit(expr);
-            // Add
         } else if (expr.kind.equals("string")) {
             return string(expr);
         } else if (expr.kind.equals("ident")) {
@@ -163,9 +163,24 @@ public class Interpreter {
             return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
             return calc(expr);
+            // Add
+        } else if (expr.kind.equals("dot")) {
+            return dot(expr);
         } else {
             throw new Exception("Expression error");
         }
+    }
+
+    public Object dot(Token token) throws Exception {
+        Dotted d = new Dotted();
+        d.left = value(expression(token.left));
+        d.right = token.right;
+        return d;
+    }
+
+    public static class Dotted {
+        public Object left;
+        public Token right;
     }
 
     public Integer digit(Token token) {
@@ -208,7 +223,6 @@ public class Interpreter {
             paramCheckList.add(param);
         }
         DynamicFunc func = new DynamicFunc();
-        // Update
         func.context = new Interpreter();
         func.context.global = global;
         func.context.local = local;
@@ -425,6 +439,13 @@ public class Interpreter {
     public Func func(Object value) throws Exception {
         if (value instanceof Func) {
             return (Func) value;
+        } else if (value instanceof Dotted) {
+            Dotted d = (Dotted) value;
+            MethodFunc mf = new MethodFunc();
+            mf.name = d.right.value;
+            mf.class_ = d.left.getClass();
+            mf.target = d.left;
+            return mf;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
             return func(v.value);
@@ -502,16 +523,134 @@ public class Interpreter {
         }
     }
 
+    public static class MethodFunc extends Func {
+
+        public Class<?> class_;
+        public Object target;
+
+        @Override
+        public Object invoke(List<Object> args) throws Exception {
+            List<Class<?>> aClasses = argClasses(args);
+            List<Method> mByName = methodByName(class_.getMethods(), name);
+            List<Method> mByAssignable = methodByAssignable(mByName, aClasses);
+            if (mByAssignable.size() == 0) {
+                throw new Exception("MethodFunc.invoke error");
+            }
+            Method method;
+            if (mByAssignable.size() > 1) {
+                List<Method> mByAbsolute = methodByAbsolute(mByAssignable, aClasses);
+                if (mByAbsolute.size() != 1) {
+                    throw new Exception("MethodFunc.invoke error");
+                }
+                method = mByAbsolute.get(0);
+            } else {
+                method = mByAssignable.get(0);
+            }
+            Object val = method.invoke(target, args.toArray());
+            return val;
+        }
+
+        public List<Class<?>> argClasses(List<Object> args) {
+            List<Class<?>> classes = new ArrayList<Class<?>>();
+            int psize = args.size();
+            for (int i = 0; i < psize; ++i) {
+                Object a = args.get(i);
+                if (a != null) {
+                    classes.add(a.getClass());
+                } else {
+                    classes.add(null);
+                }
+            }
+            return classes;
+        }
+
+        public List<Method> methodByName(Method[] methods, String name) {
+            List<Method> ms = new ArrayList<Method>();
+            for (Method m : methods) {
+                if (m.getName().equals(name)) {
+                    ms.add(m);
+                }
+            }
+            return ms;
+        }
+
+        public List<Method> methodByAssignable(List<Method> methods, List<Class<?>> aClasses) {
+            List<Method> candidates = new ArrayList<Method>();
+
+            int aSize = aClasses.size();
+            for (Method m : methods) {
+                Class<?>[] pTypes = m.getParameterTypes();
+
+                if (pTypes.length != aSize) {
+                    continue;
+                }
+
+                Boolean allAssignable = true;
+                for (int i = 0; i < aSize; ++i) {
+                    Class<?> c = pTypes[i];
+                    Class<?> cc;
+                    if (c == int.class) {
+                        cc = Integer.class;
+                    } else {
+                        cc = c;
+                    }
+                    Class<?> ac = aClasses.get(i);
+                    if (ac != null) {
+                        Class<?> acc;
+                        if (ac == int.class) {
+                            acc = Integer.class;
+                        } else {
+                            acc = ac;
+                        }
+                        allAssignable &= cc.isAssignableFrom(acc);
+                    }
+                    if (!allAssignable) {
+                        break;
+                    }
+                }
+                if (allAssignable) {
+                    candidates.add(m);
+                }
+            }
+            return candidates;
+        }
+
+        public List<Method> methodByAbsolute(List<Method> candidates, List<Class<?>> aClasses) {
+            List<Method> screened = new ArrayList<Method>();
+            int aSize = aClasses.size();
+            for (int i = 0; i < aSize; ++i) {
+                Class<?> ac = aClasses.get(i);
+                if (ac == null) {
+                    return screened;
+                }
+            }
+            for (Method m : candidates) {
+                Class<?>[] pTypes = m.getParameterTypes();
+                Boolean allEquals = true;
+                for (int i = 0; i < aSize; ++i) {
+                    Class<?> c = pTypes[i];
+                    Class<?> ac = aClasses.get(i);
+                    allEquals &= c == ac;
+                    if (!allEquals) {
+                        break;
+                    }
+                }
+                if (allEquals) {
+                    screened.add(m);
+                }
+            }
+            return screened;
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "var object = \"\"";
-        text += "if (!object) {";
-        text += " object = \"world\"";
-        text += "}";
-        text += "println(\"Hello \" + object + \"!\")";
+        text += "var hw = \"Hello world!\"";
+        text += "var h = hw.substring(0, 5)";
+        text += "println(h)";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> Hello world!
+        // --> Hello
     }
 }

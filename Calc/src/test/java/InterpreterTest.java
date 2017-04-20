@@ -1,4 +1,5 @@
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Map;
@@ -1067,6 +1068,23 @@ public class InterpreterTest {
         text += "v = !\"1\"";
         actual = run();
         assertEquals(0, (int) actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_169() throws Exception {
+        text += " v = \"abc\".substring(0, 1)  ";
+        actual = run();
+        assertEquals("a", actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_170() throws Exception {
+        text += " v = \"abc\".x(0, 1)  ";
+        try {
+            actual = run();
+            fail();
+        } catch (Exception e) {
+        }
     }
 
     private Map<String, Interpreter.Variable> run() throws Exception {

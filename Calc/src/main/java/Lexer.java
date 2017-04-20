@@ -41,6 +41,10 @@ public class Lexer {
                 || c == '|';
     }
 
+    private boolean isDotStart(char c) {
+        return c == '.';
+    }
+
     private boolean isParenStart(char c) {
         return c == '(' || c == ')';
     }
@@ -92,6 +96,13 @@ public class Lexer {
             v = Character.toString(c1) + Character.toString(c2);
         }
         t.value = v;
+        return t;
+    }
+
+    private Token dot() throws Exception {
+        Token t = new Token();
+        t.kind = "dot";
+        t.value = Character.toString(next());
         return t;
     }
 
@@ -195,9 +206,11 @@ public class Lexer {
             return null;
         } else if (isSignStart(c())) {
             return sign();
+            // Add
+        } else if (isDotStart(c())) {
+            return dot();
         } else if (isDigitStart(c())) {
             return digit();
-            // Add
         } else if (isStringStart(c())) {
             return string();
         } else if (isIdentStart(c())) {
