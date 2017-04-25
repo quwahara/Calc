@@ -16,7 +16,7 @@ public class Parser {
 
     public Parser() {
         degrees = new HashMap<>();
-        // Update
+        // Update 1
         degrees.put(".", 80);
         degrees.put("(", 80);
         degrees.put("*", 60);
@@ -33,7 +33,7 @@ public class Parser {
         degrees.put("||", 30);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident", "string" });
-        // Update
+        // Update 2
         binaryKinds = Arrays.asList(new String[] { "sign", "dot" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });

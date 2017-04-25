@@ -439,6 +439,7 @@ public class Interpreter {
     public Func func(Object value) throws Exception {
         if (value instanceof Func) {
             return (Func) value;
+            // Add
         } else if (value instanceof Dotted) {
             Dotted d = (Dotted) value;
             MethodFunc mf = new MethodFunc();
@@ -525,27 +526,56 @@ public class Interpreter {
 
     public static class MethodFunc extends Func {
 
+        // メソッド呼び出し対象の型を表します
         public Class<?> class_;
+        // メソッド呼び出し対象のインスタンスを表します
         public Object target;
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
+            
+            // 引数から引数の型の一覧を作ります
             List<Class<?>> aClasses = argClasses(args);
+            
+            // メソッド呼び出し対象の型が持つメソッド情報の一覧を、
+            // このMethodFuncの名前と同じもののみに絞った一覧にします
             List<Method> mByName = methodByName(class_.getMethods(), name);
+            
+            // 名前で絞ったメソッド情報の一覧を、
+            // 引数の型の一覧が代入可能なシグニチャーになっているもののみに絞った一覧にします
             List<Method> mByAssignable = methodByAssignable(mByName, aClasses);
+            
+            // 絞った結果、該当するメソッド情報がなかったらエラー
             if (mByAssignable.size() == 0) {
                 throw new Exception("MethodFunc.invoke error");
             }
+            
             Method method;
-            if (mByAssignable.size() > 1) {
+            if (mByAssignable.size() == 1) {
+                
+                // 絞った結果、該当するメソッド情報が1つだったら、
+                // それが呼び出し対象のメソッド情報
+                method = mByAssignable.get(0);
+            
+            } else {
+                
+                // 絞った結果、該当するメソッド情報が2つ以上だったら、さらに絞り込みます。
+                // 代入可能なシグニチャーで絞ったメソッド情報の一覧を、
+                // 引数の型の一覧が完全に一致するシグニチャーになっているもののみに絞り込みます。
                 List<Method> mByAbsolute = methodByAbsolute(mByAssignable, aClasses);
+                
+                // 絞った結果、該当するメソッド情報が1つにならなかったらエラー
                 if (mByAbsolute.size() != 1) {
                     throw new Exception("MethodFunc.invoke error");
                 }
+                
+                // 絞った結果、該当するメソッド情報が1つだったら、
+                // それが呼び出し対象のメソッド情報
                 method = mByAbsolute.get(0);
-            } else {
-                method = mByAssignable.get(0);
+                
             }
+            
+            // 1つに絞れたメソッド情報を使って、メソッド呼び出しを行う
             Object val = method.invoke(target, args.toArray());
             return val;
         }
