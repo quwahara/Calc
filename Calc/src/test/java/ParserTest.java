@@ -901,4 +901,337 @@ public class ParserTest {
         assertEquals(exp, block.get(0).indent(""));
     }
 
+    @Test
+    public void newArray1() {
+        text = "[";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray2() throws Exception {
+        text = "[]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray3() {
+        text = "[a";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray4() throws Exception {
+        text = "[a]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray5() {
+        text = "[,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray6() throws Exception {
+        text = "[,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  blank \"\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray7() {
+        text = "[a,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray8() throws Exception {
+        text = "[a,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray9() {
+        text = "[a,b";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray10() throws Exception {
+        text = "[a,b]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray11() {
+        text = "[,,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray12() throws Exception {
+        text = "[,,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  blank \"\"\n";
+        exp += "  blank \"\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray13() {
+        text = "[a,,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray14() throws Exception {
+        text = "[a,,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  blank \"\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray15() {
+        text = "[,b,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray16() throws Exception {
+        text = "[,b,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  blank \"\"\n";
+        exp += "  ident \"b\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray17() {
+        text = "[,,c";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray18() throws Exception {
+        text = "[,,c]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  blank \"\"\n";
+        exp += "  blank \"\"\n";
+        exp += "  ident \"c\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newArray19() {
+        text = "[a,b,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray20() throws Exception {
+        text = "[a,b,]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray21() {
+        text = "[,b,c";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray22() throws Exception {
+        text = "[,b,c]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  blank \"\"\n";
+        exp += "  ident \"b\"\n";
+        exp += "  ident \"c\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
+    @Test
+    public void newArray23() {
+        text = "[a,,c";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray24() throws Exception {
+        text = "[a,,c]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  blank \"\"\n";
+        exp += "  ident \"c\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newArray25() {
+        text = "[a,b,c";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newArray26() throws Exception {
+        text = "[a,b,c]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newArray \"[\"\n";
+        exp += "[params]\n";
+        exp += "  ident \"a\"\n";
+        exp += "  ident \"b\"\n";
+        exp += "  ident \"c\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void bracket1() {
+        text = "a[";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void bracket2() {
+        text = "a[0";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void bracket3() throws Exception {
+        text = "a[0]";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "bracket \"[\"\n";
+        exp += "[left]\n";
+        exp += "  ident \"a\"\n";
+        exp += "[right]\n";
+        exp += "  digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
 }

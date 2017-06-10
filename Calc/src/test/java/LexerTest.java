@@ -157,6 +157,16 @@ public class LexerTest {
     }
 
     @Test
+    public void testTokenize_bracket() throws Exception {
+        act = lxr.init("[]").tokenize();
+        assertEquals(2, act.size());
+        assertEquals("bracket", act.get(0).kind);
+        assertEquals("[", act.get(0).value);
+        assertEquals("bracket", act.get(1).kind);
+        assertEquals("]", act.get(1).value);
+    }
+
+    @Test
     public void testTokenize_curly() throws Exception {
         act = lxr.init("{}").tokenize();
         assertEquals(2, act.size());

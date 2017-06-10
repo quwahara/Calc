@@ -16,9 +16,9 @@ public class Parser {
 
     public Parser() {
         degrees = new HashMap<>();
-        // Update 1
         degrees.put(".", 80);
         degrees.put("(", 80);
+        degrees.put("[", 80);   // Add
         degrees.put("*", 60);
         degrees.put("/", 60);
         degrees.put("+", 50);
@@ -33,7 +33,6 @@ public class Parser {
         degrees.put("||", 30);
         degrees.put("=", 10);
         factorKinds = Arrays.asList(new String[] { "digit", "ident", "string" });
-        // Update 2
         binaryKinds = Arrays.asList(new String[] { "sign", "dot" });
         rightAssocs = Arrays.asList(new String[] { "=" });
         unaryOperators = Arrays.asList(new String[] { "+", "-", "!" });
@@ -42,6 +41,13 @@ public class Parser {
 
     private List<Token> tokens;
     private int i;
+    
+    public static Token blank;
+    static {
+        blank = new Token();
+        blank.kind = "blank";
+        blank.value = "";
+    }
 
     public Parser init(List<Token> tokens) {
         i = 0;
@@ -101,6 +107,9 @@ public class Parser {
             Token expr = expression(0);
             consume(")");
             return expr;
+            // Add
+        } else if (token.kind.equals("bracket") && token.value.equals("[")) {
+            return newArray(token);
         } else {
             throw new Exception("The token cannot place there.");
         }
@@ -201,6 +210,31 @@ public class Parser {
         return id;
     }
 
+    private Token newArray(Token token) throws Exception {
+        token.kind = "newArray";
+        token.params = new ArrayList<Token>();
+        while(true) {
+            if (token().value.equals("]")) {
+                consume("]");
+                break;
+            }
+            if (token().value.equals(",")) {
+                token.params.add(blank);
+                consume(",");
+                continue;
+            }
+            token.params.add(expression(0));
+            if (token().value.equals(",")) {
+                consume(",");
+                continue;
+            } else {
+                consume("]");
+                break;
+            }
+        }
+        return token;
+    }
+
     private int degree(Token t) {
         if (degrees.containsKey(t.value)) {
             return degrees.get(t.value);
@@ -229,6 +263,12 @@ public class Parser {
                 }
             }
             consume(")");
+            return operator;
+            // Add
+        } else if (operator.kind.equals("bracket") && operator.value.equals("[")) {
+            operator.left = left;
+            operator.right = expression(0);
+            consume("]");
             return operator;
         } else {
             throw new Exception("The token cannot place there.");

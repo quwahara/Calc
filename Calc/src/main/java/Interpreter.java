@@ -151,6 +151,15 @@ public class Interpreter {
             return string(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
+            // Add
+        } else if (expr.kind.equals("blank")) {
+            return blank(expr);
+            // Add
+        } else if (expr.kind.equals("newArray")) {
+            return newArray(expr);
+            // Add
+        } else if (expr.kind.equals("bracket")) {
+            return accessArray(expr);
         } else if (expr.kind.equals("func")) {
             return func(expr);
         } else if (expr.kind.equals("fexpr")) {
@@ -163,7 +172,6 @@ public class Interpreter {
             return unaryCalc(expr);
         } else if (expr.kind.equals("sign")) {
             return calc(expr);
-            // Add
         } else if (expr.kind.equals("dot")) {
             return dot(expr);
         } else {
@@ -204,6 +212,18 @@ public class Interpreter {
             scope = scope.parent;
         }
         return newVariable(name);
+    }
+
+    public Object blank(Token token) {
+        return null;
+    }
+
+    public Object newArray(Token expr) throws Exception {
+        List<Object> a = new ArrayList<>();
+        for (Token item : expr.params) {
+            a.add(value(expression(item)));
+        }
+        return a;
     }
 
     public Object func(Token token) throws Exception {
@@ -272,6 +292,12 @@ public class Interpreter {
             return value;
         } else if (value instanceof String) {
             return value;
+            // Add
+        } else if (value instanceof List<?>) {
+            return value;
+            // Add
+        } else if (value == null) {
+            return value;
         } else if (value instanceof Func) {
             return value;
         } else if (value instanceof Variable) {
@@ -305,6 +331,17 @@ public class Interpreter {
         throw new Exception("right value error");
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Object> array(Object value) throws Exception {
+        if (value instanceof List<?>) {
+            return (List<Object>) value;
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return array(v.value);
+        }
+        throw new Exception("right value error");
+    }
+
     public Object unaryCalc(Token expr) throws Exception {
         Object value = value(expression(expr.left));
         if (value instanceof Integer) {
@@ -334,6 +371,12 @@ public class Interpreter {
         } else {
             throw new Exception("unaryCalcString error");
         }
+    }
+
+    public Object accessArray(Token expr) throws Exception {
+        List<Object> ar = array(expression(expr.left));
+        Integer index = integer(expression(expr.right));
+        return ar.get(index);
     }
 
     public Object calc(Token expr) throws Exception {
@@ -439,7 +482,6 @@ public class Interpreter {
     public Func func(Object value) throws Exception {
         if (value instanceof Func) {
             return (Func) value;
-            // Add
         } else if (value instanceof Dotted) {
             Dotted d = (Dotted) value;
             MethodFunc mf = new MethodFunc();
@@ -675,12 +717,13 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "var hw = \"Hello world!\"";
-        text += "var h = hw.substring(0, 5)";
-        text += "println(h)";
+        text += "var ar = [\"a\", \"b\", \"c\"]";
+        text += "println(ar.size())";
+        text += "println(ar[2])";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> Hello
+        // --> 3
+        // --> c
     }
 }

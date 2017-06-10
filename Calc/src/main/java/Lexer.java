@@ -53,6 +53,10 @@ public class Lexer {
         return c == '{' || c == '}';
     }
 
+    private boolean isBracketStart(char c) {
+        return c == '[' || c == ']';
+    }
+
     private boolean isSymbolStart(char c) {
         return c == ',';
     }
@@ -120,6 +124,13 @@ public class Lexer {
         } else {
             t.kind = "eob";
         }
+        t.value = Character.toString(next());
+        return t;
+    }
+
+    private Token bracket() throws Exception {
+        Token t = new Token();
+        t.kind = "bracket";
         t.value = Character.toString(next());
         return t;
     }
@@ -206,7 +217,6 @@ public class Lexer {
             return null;
         } else if (isSignStart(c())) {
             return sign();
-            // Add
         } else if (isDotStart(c())) {
             return dot();
         } else if (isDigitStart(c())) {
@@ -219,6 +229,9 @@ public class Lexer {
             return paren();
         } else if (isCurlyStart(c())) {
             return curly();
+            // Add
+        } else if (isBracketStart(c())) {
+            return bracket();
         } else if (isSymbolStart(c())) {
             return symbol();
         } else {

@@ -62,16 +62,6 @@ public class InterpreterTest {
     }
 
     @Test
-    public void testBody_5() throws Exception {
-        try {
-            text = "a = println(1)";
-            actual = run();
-            fail();
-        } catch (Exception e) {
-        }
-    }
-
-    @Test
     public void testBody_6() throws Exception {
         try {
             text = "1 = 1";
@@ -1085,6 +1075,37 @@ public class InterpreterTest {
             fail();
         } catch (Exception e) {
         }
+    }
+
+    @Test
+    public void testBody_171() throws Exception {
+        text += " a = []";
+        text += " size = a.size()";
+        actual = run();
+        assertEquals(0, actual.get("size").value);
+    }
+
+    @Test
+    public void testBody_172() throws Exception {
+        text += " a = [1]";
+        text += " size = a.size()";
+        text += " v = a[0]";
+        actual = run();
+        assertEquals(1, actual.get("size").value);
+        assertEquals(1, actual.get("v").value);
+    }
+
+    @Test
+    public void testBody_173() throws Exception {
+        text += "i = 0";
+        text += "a = [1, , 3]";
+        text += "size = a.size()";
+        text += "v2 = a[i + 1]";
+        text += "v3 = a[i + 2]";
+        actual = run();
+        assertEquals(3, actual.get("size").value);
+        assertEquals(null, actual.get("v2").value);
+        assertEquals(3, actual.get("v3").value);
     }
 
     private Map<String, Interpreter.Variable> run() throws Exception {
