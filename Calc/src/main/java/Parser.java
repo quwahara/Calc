@@ -18,7 +18,7 @@ public class Parser {
         degrees = new HashMap<>();
         degrees.put(".", 80);
         degrees.put("(", 80);
-        degrees.put("[", 80);   // Add
+        degrees.put("[", 80);
         degrees.put("*", 60);
         degrees.put("/", 60);
         degrees.put("+", 50);
@@ -107,9 +107,11 @@ public class Parser {
             Token expr = expression(0);
             consume(")");
             return expr;
-            // Add
         } else if (token.kind.equals("bracket") && token.value.equals("[")) {
             return newArray(token);
+            // Add
+        } else if (token.kind.equals("curly") && token.value.equals("{")) {
+            return newMap(token);
         } else {
             throw new Exception("The token cannot place there.");
         }
@@ -235,6 +237,35 @@ public class Parser {
         return token;
     }
 
+    private Token newMap(Token token) throws Exception {
+        token.kind = "newMap";
+        token.params = new ArrayList<Token>();
+        while(true) {
+            if (token().value.equals("}")) {
+                consume("}");
+                break;
+            }
+            Token key = expression(0);
+            Token colon = consume(":");
+            colon.left = key;
+            token.params.add(colon);
+            if (token().value.equals(",")) {
+                colon.right = blank;
+                consume(",");
+                continue;
+            }
+            colon.right = expression(0);
+            if (token().value.equals(",")) {
+                consume(",");
+                continue;
+            } else {
+                consume("}");
+                break;
+            }
+        }
+        return token;
+    }
+
     private int degree(Token t) {
         if (degrees.containsKey(t.value)) {
             return degrees.get(t.value);
@@ -264,7 +295,6 @@ public class Parser {
             }
             consume(")");
             return operator;
-            // Add
         } else if (operator.kind.equals("bracket") && operator.value.equals("[")) {
             operator.left = left;
             operator.right = expression(0);

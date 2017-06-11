@@ -58,7 +58,8 @@ public class Lexer {
     }
 
     private boolean isSymbolStart(char c) {
-        return c == ',';
+        // Update
+        return c == ',' || c == ':';
     }
 
     private boolean isDigitStart(char c) throws Exception {
@@ -229,7 +230,6 @@ public class Lexer {
             return paren();
         } else if (isCurlyStart(c())) {
             return curly();
-            // Add
         } else if (isBracketStart(c())) {
             return bracket();
         } else if (isSymbolStart(c())) {

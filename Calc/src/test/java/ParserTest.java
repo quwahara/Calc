@@ -1200,6 +1200,210 @@ public class ParserTest {
     }
     
     @Test
+    public void newMap1() {
+        text = "{";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap2() {
+        text = "{,";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap3() {
+        text = "{a";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap4() {
+        text = "{a:";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap5() {
+        text = "{a:0";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap6() throws Exception {
+        text = "{a:0}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newMap7() throws Exception {
+        text = "{a:0,}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newMap8() {
+        text = "{a:0,b";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap9() {
+        text = "{a:0,b:";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap10() {
+        text = "{a:0, b:1";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap11() throws Exception {
+        text = "{a:0, b:0}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"b\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newMap12() throws Exception {
+        text = "{a:0, b:0,}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"b\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newMap13() {
+        text = "{a:0, , b:1";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void newMap14() throws Exception {
+        text = "{a:0, b:0, c:0}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"b\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        exp += "  symbol \":\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"c\"\n";
+        exp += "  [right]\n";
+        exp += "    digit \"0\"\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
+    public void newMap15() throws Exception {
+        text = "{}";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "newMap \"{\"\n";
+        exp += "[params]\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+    
+    @Test
     public void bracket1() {
         text = "a[";
         try {

@@ -1,6 +1,7 @@
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -151,15 +152,16 @@ public class Interpreter {
             return string(expr);
         } else if (expr.kind.equals("ident")) {
             return ident(expr);
-            // Add
         } else if (expr.kind.equals("blank")) {
             return blank(expr);
             // Add
+        } else if (expr.kind.equals("newMap")) {
+            return newMap(expr);
         } else if (expr.kind.equals("newArray")) {
             return newArray(expr);
-            // Add
+            // Update
         } else if (expr.kind.equals("bracket")) {
-            return accessArray(expr);
+            return accessArrayOrMap(expr);
         } else if (expr.kind.equals("func")) {
             return func(expr);
         } else if (expr.kind.equals("fexpr")) {
@@ -224,6 +226,16 @@ public class Interpreter {
             a.add(value(expression(item)));
         }
         return a;
+    }
+
+    public Object newMap(Token expr) throws Exception {
+        Map<String, Object> m = new LinkedHashMap<>();
+        for (Token item : expr.params) {
+            String key = identOrString(item.left);
+            Object value = value(expression(item.right));
+            m.put(key, value);
+        }
+        return m;
     }
 
     public Object func(Token token) throws Exception {
@@ -292,10 +304,11 @@ public class Interpreter {
             return value;
         } else if (value instanceof String) {
             return value;
-            // Add
         } else if (value instanceof List<?>) {
             return value;
             // Add
+        } else if (value instanceof Map<?, ?>) {
+            return value;
         } else if (value == null) {
             return value;
         } else if (value instanceof Func) {
@@ -329,6 +342,14 @@ public class Interpreter {
             return string(v.value);
         }
         throw new Exception("right value error");
+    }
+
+    public String identOrString(Token expr) throws Exception {
+        if (expr.kind.equals("ident")) {
+            return expr.value;
+        } else {
+            return string(expression(expr));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -373,10 +394,20 @@ public class Interpreter {
         }
     }
 
-    public Object accessArray(Token expr) throws Exception {
-        List<Object> ar = array(expression(expr.left));
-        Integer index = integer(expression(expr.right));
-        return ar.get(index);
+    @SuppressWarnings("unchecked")
+    public Object accessArrayOrMap(Token expr) throws Exception {
+        Object v = value(expression(expr.left));
+        if (v instanceof List<?>) {
+            List<Object> ar = (List<Object>) v;
+            Integer index = integer(expression(expr.right));
+            return ar.get(index);
+        } else if (v instanceof Map<?, ?>) {
+            Map<String, Object> map = (Map<String, Object>) v;
+            String key = string(expression(expr.right));
+            return map.get(key);
+        } else {
+            throw new Exception("accessArrayOrMap error");
+        }
     }
 
     public Object calc(Token expr) throws Exception {
@@ -717,13 +748,16 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "var ar = [\"a\", \"b\", \"c\"]";
-        text += "println(ar.size())";
-        text += "println(ar[2])";
+        text += "var m = {";
+        text += "  key1: \"v1\",";
+        text += "  key2: \"v2\",";
+        text += "}";
+        text += "println(m.size())";
+        text += "println(m[\"key2\"])";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 3
-        // --> c
+        // --> 2
+        // --> v2
     }
 }
