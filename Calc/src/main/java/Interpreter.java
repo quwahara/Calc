@@ -1,3 +1,4 @@
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +11,15 @@ public class Interpreter {
     Scope global;
     Scope local;
     List<Token> body;
+    // Add
+    public static Object void_ = new Object();
 
     public Interpreter init(List<Token> body) {
         global = new Scope();
         local = global;
+        // Add
+        Func loadClass = new LoadClass();
+        global.functions.put(loadClass.name, loadClass);
         Func f = new Println();
         global.functions.put(f.name, f);
         this.body = body;
@@ -38,7 +44,8 @@ public class Interpreter {
                 }
                 ret[0] = true;
                 if (exprs.left == null) {
-                    return null;
+                    // Update
+                    return void_;
                 } else {
                     return expression(exprs.left);
                 }
@@ -52,19 +59,22 @@ public class Interpreter {
                     throw new Exception("Can not break");
                 }
                 brk[0] = true;
-                return null;
+                // Update
+                return void_;
             } else if (exprs.kind.equals("var")) {
                 var(exprs);
             } else {
                 expression(exprs);
             }
         }
-        return null;
+        // Update
+        return void_;
     }
 
     public Object ret(Token token) throws Exception {
         if (token.left == null) {
-            return null;
+            // Update
+            return void_;
         }
         return expression(token.left);
     }
@@ -79,7 +89,8 @@ public class Interpreter {
         if (block != null) {
             return body(block, ret, brk);
         } else {
-            return null;
+            // Update
+            return void_;
         }
     }
 
@@ -92,10 +103,12 @@ public class Interpreter {
                 return val;
             }
             if (brk[0]) {
-                return null;
+                // Update
+                return void_;
             }
         }
-        return null;
+        // Update
+        return void_;
     }
 
     public boolean isTrue(Token token) throws Exception {
@@ -103,7 +116,9 @@ public class Interpreter {
     }
 
     public boolean isTrue(Object value) throws Exception {
-        if (value instanceof Integer) {
+        if (value == null) {
+            return false;
+        } else if (value instanceof Integer) {
             return 0 != ((Integer) value);
         } else if (value instanceof String) {
             return !"".equals(value);
@@ -134,7 +149,8 @@ public class Interpreter {
                 expression(expr);
             }
         }
-        return null;
+        // Update
+        return void_;
     }
 
     public Variable newVariable(String name) {
@@ -155,11 +171,12 @@ public class Interpreter {
         } else if (expr.kind.equals("blank")) {
             return blank(expr);
             // Add
+        } else if (expr.kind.equals("new")) {
+            return new_(expr);
         } else if (expr.kind.equals("newMap")) {
             return newMap(expr);
         } else if (expr.kind.equals("newArray")) {
             return newArray(expr);
-            // Update
         } else if (expr.kind.equals("bracket")) {
             return accessArrayOrMap(expr);
         } else if (expr.kind.equals("func")) {
@@ -218,6 +235,144 @@ public class Interpreter {
 
     public Object blank(Token token) {
         return null;
+    }
+
+    public Object new_(Token expr) throws Exception {
+        
+        // "("の左側をクラスに解決し、そのクラスのコンストラクタ一覧を取得します
+        Class<?> c = class_(expression(expr.left.left));
+        Constructor<?>[] ctors = c.getConstructors();
+        
+        // "("の右側のコンストラクタ引数を、値へ解決した一覧にします
+        List<Object> args = new ArrayList<Object>();
+        for (Token arg : expr.left.params) {
+            args.add(value(expression(arg)));
+        }
+
+        // 引数から引数の型の一覧を作ります
+        List<Class<?>> aClasses = argClasses(args);
+
+        // 引数の型の一覧が代入可能なシグニチャーになっているコンストラクターのみに絞った一覧にします
+        List<Constructor<?>> byAssignables = ctorsByAssignable(ctors, aClasses);
+
+        // 絞った結果、該当するコンストラクターがなかったらエラー
+        if (byAssignables.size() == 0) {
+            throw new Exception("No constructor error");
+        }
+
+        Constructor<?> ctor;
+        if (byAssignables.size() == 1) {
+
+            // 絞った結果、該当するコンストラクターが1つだったら、
+            // それが呼び出し対象のコンストラクター
+            ctor = byAssignables.get(0);
+
+        } else {
+
+            // 絞った結果、該当するコンストラクターが2つ以上だったら、さらに絞り込みます。
+            // 代入可能なシグニチャーで絞ったコンストラクターの一覧を、
+            // 引数の型の一覧が完全に一致するシグニチャーになっているコンストラクターのみに絞り込みます。
+            List<Constructor<?>> byAbsolutes = ctorsByAbsolute(byAssignables, aClasses);
+
+            // 絞った結果、該当するコンストラクターが1つにならなかったらエラー
+            if (byAbsolutes.size() != 1) {
+                throw new Exception("No constructor error");
+            }
+
+            // 絞った結果、該当するコンストラクターが1つだったら、
+            // それが呼び出し対象のコンストラクター
+            ctor = byAbsolutes.get(0);
+
+        }
+
+        // 1つに絞れたコンストラクターを使って、コンストラクター呼び出しを行う
+        Object val = ctor.newInstance(args.toArray());
+        return val;
+    }
+
+    public List<Class<?>> argClasses(List<Object> args) {
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        int psize = args.size();
+        for (int i = 0; i < psize; ++i) {
+            Object a = args.get(i);
+            if (a != null) {
+                classes.add(a.getClass());
+            } else {
+                classes.add(null);
+            }
+        }
+        return classes;
+    }
+
+    public static List<Constructor<?>> ctorsByAssignable(Constructor<?>[] ctors, List<Class<?>> aClasses) {
+        List<Constructor<?>> candidates = new ArrayList<Constructor<?>>();
+
+        int aSize = aClasses.size();
+        for (Constructor<?> ctor : ctors) {
+            Class<?>[] pTypes = ctor.getParameterTypes();
+
+            if (pTypes.length != aSize) {
+                continue;
+            }
+
+            Boolean allAssignable = true;
+            for (int i = 0; i < aSize; ++i) {
+                Class<?> c = pTypes[i];
+                Class<?> cc;
+                if (c == int.class) {
+                    cc = Integer.class;
+                } else {
+                    cc = c;
+                }
+                Class<?> ac = aClasses.get(i);
+                if (ac != null) {
+                    Class<?> acc;
+                    if (ac == int.class) {
+                        acc = Integer.class;
+                    } else {
+                        acc = ac;
+                    }
+                    allAssignable &= cc.isAssignableFrom(acc);
+                }
+                if (!allAssignable) {
+                    break;
+                }
+            }
+            if (allAssignable) {
+                candidates.add(ctor);
+            }
+        }
+        return candidates;
+    }
+
+    public static List<Constructor<?>> ctorsByAbsolute(List<Constructor<?>> candidates, List<Class<?>> aClasses) {
+        List<Constructor<?>> screened = new ArrayList<Constructor<?>>();
+        int aSize = aClasses.size();
+        for (int i = 0; i < aSize; ++i) {
+            Class<?> ac = aClasses.get(i);
+            if (ac == null) {
+                return screened;
+            }
+        }
+        for (Constructor<?> ctor : candidates) {
+            Class<?>[] pTypes = ctor.getParameterTypes();
+            if (aSize != pTypes.length) {
+                continue;
+            }
+            Boolean allEquals = true;
+            for (int i = 0; i < aSize; ++i) {
+                Class<?> c = pTypes[i];
+                Class<?> ac = aClasses.get(i);
+                allEquals &= c == ac;
+                if (!allEquals) {
+                    break;
+                }
+            }
+            if (allEquals) {
+                screened.add(ctor);
+            }
+        }
+        return screened;
     }
 
     public Object newArray(Token expr) throws Exception {
@@ -300,24 +455,13 @@ public class Interpreter {
     }
 
     public Object value(Object value) throws Exception {
-        if (value instanceof Integer) {
-            return value;
-        } else if (value instanceof String) {
-            return value;
-        } else if (value instanceof List<?>) {
-            return value;
-            // Add
-        } else if (value instanceof Map<?, ?>) {
-            return value;
-        } else if (value == null) {
-            return value;
-        } else if (value instanceof Func) {
-            return value;
+        if (value == void_) {
+            throw new Exception("right value error");
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
             return value(v.value);
         }
-        throw new Exception("right value error");
+        return value;
     }
 
     public Integer integer(Object value) throws Exception {
@@ -350,6 +494,16 @@ public class Interpreter {
         } else {
             return string(expression(expr));
         }
+    }
+
+    public Class<?> class_(Object value) throws Exception {
+        if (value instanceof Class<?>) {
+            return (Class<?>) value;
+        } else if (value instanceof Variable) {
+            Variable v = (Variable) value;
+            return class_(v.value);
+        }
+        throw new Exception("right value error");
     }
 
     @SuppressWarnings("unchecked")
@@ -556,6 +710,17 @@ public class Interpreter {
         abstract public Object invoke(List<Object> args) throws Exception;
     }
 
+    public static class LoadClass extends Func {
+        public LoadClass() {
+            name = "loadClass";
+        }
+
+        @Override
+        public Object invoke(List<Object> args) throws Exception {
+            return Class.forName((String) args.get(0));
+        }
+    }
+
     public static class Println extends Func {
         public Println() {
             name = "println";
@@ -565,7 +730,8 @@ public class Interpreter {
         public Object invoke(List<Object> args) throws Exception {
             Object arg = args.size() > 0 ? args.get(0) : null;
             System.out.println(arg);
-            return null;
+            // Update
+            return void_;
         }
     }
 
@@ -606,48 +772,48 @@ public class Interpreter {
 
         @Override
         public Object invoke(List<Object> args) throws Exception {
-            
+
             // 引数から引数の型の一覧を作ります
             List<Class<?>> aClasses = argClasses(args);
-            
+
             // メソッド呼び出し対象の型が持つメソッド情報の一覧を、
             // このMethodFuncの名前と同じもののみに絞った一覧にします
             List<Method> mByName = methodByName(class_.getMethods(), name);
-            
+
             // 名前で絞ったメソッド情報の一覧を、
             // 引数の型の一覧が代入可能なシグニチャーになっているもののみに絞った一覧にします
             List<Method> mByAssignable = methodByAssignable(mByName, aClasses);
-            
+
             // 絞った結果、該当するメソッド情報がなかったらエラー
             if (mByAssignable.size() == 0) {
                 throw new Exception("MethodFunc.invoke error");
             }
-            
+
             Method method;
             if (mByAssignable.size() == 1) {
-                
+
                 // 絞った結果、該当するメソッド情報が1つだったら、
                 // それが呼び出し対象のメソッド情報
                 method = mByAssignable.get(0);
-            
+
             } else {
-                
+
                 // 絞った結果、該当するメソッド情報が2つ以上だったら、さらに絞り込みます。
                 // 代入可能なシグニチャーで絞ったメソッド情報の一覧を、
                 // 引数の型の一覧が完全に一致するシグニチャーになっているもののみに絞り込みます。
                 List<Method> mByAbsolute = methodByAbsolute(mByAssignable, aClasses);
-                
+
                 // 絞った結果、該当するメソッド情報が1つにならなかったらエラー
                 if (mByAbsolute.size() != 1) {
                     throw new Exception("MethodFunc.invoke error");
                 }
-                
+
                 // 絞った結果、該当するメソッド情報が1つだったら、
                 // それが呼び出し対象のメソッド情報
                 method = mByAbsolute.get(0);
-                
+
             }
-            
+
             // 1つに絞れたメソッド情報を使って、メソッド呼び出しを行う
             Object val = method.invoke(target, args.toArray());
             return val;
@@ -748,16 +914,12 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "var m = {";
-        text += "  key1: \"v1\",";
-        text += "  key2: \"v2\",";
-        text += "}";
-        text += "println(m.size())";
-        text += "println(m[\"key2\"])";
+        text += "var dateClass = loadClass(\"java.util.Date\")";
+        text += "var date = new dateClass()";
+        text += "println(date.toString())";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> 2
-        // --> v2
+        // --> Sat Jun 17 18:29:13 JST 2017 (実行した日時)
     }
 }

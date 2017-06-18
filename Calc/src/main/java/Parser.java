@@ -97,6 +97,9 @@ public class Parser {
             return token;
         } else if (token.kind.equals("ident") && token.value.equals("var")) {
             return var(token);
+            // Add
+        } else if (token.kind.equals("ident") && token.value.equals("new")) {
+            return new_(token);
         } else if (factorKinds.contains(token.kind)) {
             return token;
         } else if (unaryOperators.contains(token.value)) {
@@ -109,7 +112,6 @@ public class Parser {
             return expr;
         } else if (token.kind.equals("bracket") && token.value.equals("[")) {
             return newArray(token);
-            // Add
         } else if (token.kind.equals("curly") && token.value.equals("{")) {
             return newMap(token);
         } else {
@@ -197,6 +199,15 @@ public class Parser {
                 item = ident;
             }
             token.block.add(item);
+        }
+        return token;
+    }
+
+    private Token new_(Token token) throws Exception {
+        token.kind = "new";
+        token.left = expression(0);
+        if (!(token.left.value.equals("(") && token.left.kind.equals("paren"))) {
+            throw new Exception("No constructor invocation.");
         }
         return token;
     }

@@ -1438,4 +1438,51 @@ public class ParserTest {
         assertEquals(exp, block.get(0).indent(""));
     }
     
+    @Test
+    public void new1() {
+        text = "new";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+    
+    @Test
+    public void new2() {
+        text = "new a";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void new3() {
+        text = "new a(";
+        try {
+            block = parser.init(lexer.init(text).tokenize()).block();
+            fail();
+        } catch (Exception e) {
+
+        }
+    }
+
+    @Test
+    public void new4() throws Exception {
+        text = "new a()";
+        block = parser.init(lexer.init(text).tokenize()).block();
+        assertEquals(1, block.size());
+        exp += "new \"new\"\n";
+        exp += "[left]\n";
+        exp += "  paren \"(\"\n";
+        exp += "  [left]\n";
+        exp += "    ident \"a\"\n";
+        exp += "  [params]\n";
+        assertEquals(exp, block.get(0).indent(""));
+    }
+
 }
