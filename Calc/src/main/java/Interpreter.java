@@ -11,13 +11,11 @@ public class Interpreter {
     Scope global;
     Scope local;
     List<Token> body;
-    // Add
     public static Object void_ = new Object();
 
     public Interpreter init(List<Token> body) {
         global = new Scope();
         local = global;
-        // Add
         Func loadClass = new LoadClass();
         global.functions.put(loadClass.name, loadClass);
         Func f = new Println();
@@ -44,7 +42,6 @@ public class Interpreter {
                 }
                 ret[0] = true;
                 if (exprs.left == null) {
-                    // Update
                     return void_;
                 } else {
                     return expression(exprs.left);
@@ -59,7 +56,6 @@ public class Interpreter {
                     throw new Exception("Can not break");
                 }
                 brk[0] = true;
-                // Update
                 return void_;
             } else if (exprs.kind.equals("var")) {
                 var(exprs);
@@ -67,13 +63,11 @@ public class Interpreter {
                 expression(exprs);
             }
         }
-        // Update
         return void_;
     }
 
     public Object ret(Token token) throws Exception {
         if (token.left == null) {
-            // Update
             return void_;
         }
         return expression(token.left);
@@ -89,7 +83,6 @@ public class Interpreter {
         if (block != null) {
             return body(block, ret, brk);
         } else {
-            // Update
             return void_;
         }
     }
@@ -103,11 +96,9 @@ public class Interpreter {
                 return val;
             }
             if (brk[0]) {
-                // Update
                 return void_;
             }
         }
-        // Update
         return void_;
     }
 
@@ -149,7 +140,6 @@ public class Interpreter {
                 expression(expr);
             }
         }
-        // Update
         return void_;
     }
 
@@ -170,7 +160,6 @@ public class Interpreter {
             return ident(expr);
         } else if (expr.kind.equals("blank")) {
             return blank(expr);
-            // Add
         } else if (expr.kind.equals("new")) {
             return new_(expr);
         } else if (expr.kind.equals("newMap")) {
@@ -671,8 +660,15 @@ public class Interpreter {
             Dotted d = (Dotted) value;
             MethodFunc mf = new MethodFunc();
             mf.name = d.right.value;
-            mf.class_ = d.left.getClass();
-            mf.target = d.left;
+            // Update
+            Class<?> c = d.left.getClass();
+            if (c == Class.class.getClass()) {
+                mf.class_ = (Class<?>) d.left;
+                mf.target = null;
+            } else {
+                mf.class_ = c;
+                mf.target = d.left;
+            }
             return mf;
         } else if (value instanceof Variable) {
             Variable v = (Variable) value;
@@ -730,7 +726,6 @@ public class Interpreter {
         public Object invoke(List<Object> args) throws Exception {
             Object arg = args.size() > 0 ? args.get(0) : null;
             System.out.println(arg);
-            // Update
             return void_;
         }
     }
@@ -914,12 +909,11 @@ public class Interpreter {
 
     public static void main(String[] args) throws Exception {
         String text = "";
-        text += "var dateClass = loadClass(\"java.util.Date\")";
-        text += "var date = new dateClass()";
-        text += "println(date.toString())";
+        text += "var integerClass = loadClass(\"java.lang.Integer\")";
+        text += "println(integerClass.toHexString(255))";
         List<Token> tokens = new Lexer().init(text).tokenize();
         List<Token> blk = new Parser().init(tokens).block();
         new Interpreter().init(blk).run();
-        // --> Sat Jun 17 18:29:13 JST 2017 (実行した日時)
+        // --> ff
     }
 }

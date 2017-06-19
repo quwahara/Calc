@@ -97,7 +97,6 @@ public class Parser {
             return token;
         } else if (token.kind.equals("ident") && token.value.equals("var")) {
             return var(token);
-            // Add
         } else if (token.kind.equals("ident") && token.value.equals("new")) {
             return new_(token);
         } else if (factorKinds.contains(token.kind)) {

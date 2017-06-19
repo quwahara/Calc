@@ -1108,6 +1108,14 @@ public class InterpreterTest {
         assertEquals(3, actual.get("v3").value);
     }
 
+    @Test
+    public void testBody_174() throws Exception {
+        text += "integerClass = loadClass(\"java.lang.Integer\")";
+        text += "v = integerClass.toString(255, 16)";
+        actual = run();
+        assertEquals("ff", actual.get("v").value);
+    }
+
     private Map<String, Interpreter.Variable> run() throws Exception {
         List<Token> tokens = lexer.init(text).tokenize();
         List<Token> blk = parser.init(tokens).block();
