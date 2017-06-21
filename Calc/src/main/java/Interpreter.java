@@ -618,20 +618,10 @@ public class Interpreter {
                 Boolean allAssignable = true;
                 for (int i = 0; i < aSize; ++i) {
                     Class<?> c = pTypes[i];
-                    Class<?> cc;
-                    if (c == int.class) {
-                        cc = Integer.class;
-                    } else {
-                        cc = c;
-                    }
+                    Class<?> cc = toBoxClass(c);
                     Class<?> ac = aClasses.get(i);
                     if (ac != null) {
-                        Class<?> acc;
-                        if (ac == int.class) {
-                            acc = Integer.class;
-                        } else {
-                            acc = ac;
-                        }
+                        Class<?> acc = toBoxClass(ac);
                         allAssignable &= cc.isAssignableFrom(acc);
                     }
                     if (!allAssignable) {
@@ -671,6 +661,30 @@ public class Interpreter {
             }
             return screened;
         }
+    }
+
+    public static Class<?> toBoxClass(Class<?> c) {
+        Class<?> bc;
+        if (c == boolean.class) {
+            bc = Boolean.class;
+        } else if (c == char.class) {
+            bc = Character.class;
+        } else if (c == byte.class) {
+            bc = Byte.class;
+        } else if (c == short.class) {
+            bc = Short.class;
+        } else if (c == int.class) {
+            bc = Integer.class;
+        } else if (c == long.class) {
+            bc = Long.class;
+        } else if (c == float.class) {
+            bc = Float.class;
+        } else if (c == double.class) {
+            bc = Double.class;
+        } else {
+            bc = c;
+        }
+        return bc;
     }
 
     public static void main(String[] args) throws Exception {
