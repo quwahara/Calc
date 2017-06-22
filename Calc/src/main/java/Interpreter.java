@@ -318,20 +318,10 @@ public class Interpreter {
             Boolean allAssignable = true;
             for (int i = 0; i < aSize; ++i) {
                 Class<?> c = pTypes[i];
-                Class<?> cc;
-                if (c == int.class) {
-                    cc = Integer.class;
-                } else {
-                    cc = c;
-                }
+                Class<?> cc = toBoxClass(c);
                 Class<?> ac = aClasses.get(i);
                 if (ac != null) {
-                    Class<?> acc;
-                    if (ac == int.class) {
-                        acc = Integer.class;
-                    } else {
-                        acc = ac;
-                    }
+                    Class<?> acc = toBoxClass(ac);
                     allAssignable &= cc.isAssignableFrom(acc);
                 }
                 if (!allAssignable) {
