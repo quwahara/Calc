@@ -1,0 +1,16 @@
+function fibonacci(n) {
+  if (n == 0) {
+    return 0
+  } else if (n == 1) {
+    return 1
+  } else {
+    return fibonacci(n - 2) + fibonacci(n - 1)
+  }
+}
+
+var i = 0
+while (i <= 6) {
+  var n = fibonacci(i)
+  println("f(" + i.toString() + ") -> " + n.toString())
+  i = i + 1
+}
